@@ -17,6 +17,27 @@
 //   - userEmail: string (required)
 //   - createdAt: timestamp (required)
 //
+// Collection: founders
+// Fields:
+//   - name: string (required)
+//   - username: string (required)
+//   - instagram: string (optional)
+//   - bio: string (optional)
+//   - company: map { name: string, bio: string } (optional)
+//   - registeredAt: timestamp (required)
+//
+// Collection: challenges
+// Fields:
+//   - founderId: string (required)
+//   - title: string (required)
+//   - description: string (optional)
+//   - type: string (enum: ['public', 'private']) (required)
+//   - status: string (enum: ['open', 'completed']) (required)
+//   - helperName: string (optional)
+//   - resolutionDescription: string (optional)
+//   - createdAt: timestamp (required)
+//   - completedAt: timestamp (optional)
+//
 // ===============================================================
 
 rules_version = '2';
@@ -36,6 +57,10 @@ service cloud.firestore {
         (request.auth.token.email == "bbrendaribeiroc@gmail.com" && request.auth.token.email_verified == true);
     }
 
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
     function isValidBooking(data) {
       return data.keys().hasAll(['roomId', 'date', 'startTime', 'endTime', 'userName', 'userEmail', 'createdAt']) &&
              data.roomId is string && data.roomId.size() > 0 &&
@@ -47,24 +72,54 @@ service cloud.firestore {
              data.createdAt is timestamp;
     }
 
+    function isValidFounder(data) {
+      return data.keys().hasAll(['name', 'username', 'registeredAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.username is string && data.username.size() > 0 && data.username.size() < 50 &&
+             data.registeredAt is timestamp;
+    }
+
+    function isValidChallenge(data) {
+      return data.keys().hasAll(['founderId', 'title', 'type', 'status', 'createdAt']) &&
+             data.founderId is string &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.type in ['public', 'private'] &&
+             data.status in ['open', 'completed'] &&
+             data.createdAt is timestamp;
+    }
+
     // ===============================================================
     // Rules
     // ===============================================================
 
     match /rooms/{roomId} {
-      allow read: if true; // Publicly readable to see room names
+      allow read: if true;
       allow write: if isAdmin();
     }
 
     match /bookings/{bookingId} {
-      // For availability check, we need to read bookings. 
-      // To prevent PII leak, we could restrict read to admin, 
-      // but then how do users check availability?
-      // For this prototype, we allow read but warn the user.
       allow read: if true; 
-      
       allow create: if isValidBooking(request.resource.data);
       allow update, delete: if isAdmin();
+    }
+
+    match /founders/{founderId} {
+      allow read: if true;
+      allow write: if isOwner(founderId) && isValidFounder(request.resource.data);
+    }
+
+    match /challenges/{challengeId} {
+      allow read: if resource.data.type == 'public' || 
+                    isOwner(resource.data.founderId) || 
+                    isAdmin();
+      allow create: if isAuthenticated() && 
+                      isOwner(request.resource.data.founderId) && 
+                      isValidChallenge(request.resource.data);
+      allow update: if isAuthenticated() && 
+                      isOwner(resource.data.founderId) && 
+                      isValidChallenge(request.resource.data);
+      allow delete: if isAuthenticated() && 
+                      (isOwner(resource.data.founderId) || isAdmin());
     }
 
     match /settings/{settingId} {

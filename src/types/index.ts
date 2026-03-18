@@ -18,3 +18,29 @@ export interface Booking {
 }
 
 export type BookingStatus = 'idle' | 'loading' | 'success' | 'error';
+
+export interface Founder {
+  id: string;
+  name: string;
+  username: string;
+  instagram?: string;
+  bio?: string;
+  company?: {
+    name: string;
+    bio: string;
+  };
+  registeredAt: any;
+}
+
+export interface Challenge {
+  id: string;
+  founderId: string;
+  title: string;
+  description?: string;
+  type: 'public' | 'private';
+  status: 'open' | 'completed';
+  helperName?: string;
+  resolutionDescription?: string;
+  createdAt: any;
+  completedAt?: any;
+}

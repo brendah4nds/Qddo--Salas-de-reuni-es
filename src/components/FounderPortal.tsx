@@ -1,0 +1,534 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  collection, 
+  query, 
+  where, 
+  onSnapshot, 
+  doc, 
+  setDoc, 
+  addDoc, 
+  updateDoc,
+  serverTimestamp,
+  orderBy
+} from 'firebase/firestore';
+import { User } from 'firebase/auth';
+import { 
+  User as UserIcon, 
+  Instagram, 
+  Building2, 
+  Plus, 
+  Lock, 
+  Globe, 
+  CheckCircle2, 
+  Clock,
+  ArrowRight,
+  HelpCircle,
+  CheckSquare
+} from 'lucide-react';
+import { db, handleFirestoreError, OperationType } from '../firebase';
+import { Founder, Challenge } from '../types';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+export function FounderPortal({ 
+  user, 
+  activeSubTab,
+  isAdmin
+}: { 
+  user: User | null; 
+  activeSubTab: string;
+  isAdmin: boolean;
+}) {
+  const [founder, setFounder] = useState<Founder | null>(null);
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [registering, setRegistering] = useState(false);
+  const [showNewChallenge, setShowNewChallenge] = useState(false);
+  const [completingChallenge, setCompletingChallenge] = useState<Challenge | null>(null);
+
+  const [formData, setFormData] = useState({
+    name: '',
+    username: '',
+    instagram: '',
+    bio: '',
+    companyName: '',
+    companyBio: ''
+  });
+
+  const [challengeData, setChallengeData] = useState({
+    title: '',
+    description: '',
+    type: 'public' as 'public' | 'private'
+  });
+
+  const [completionData, setCompletionData] = useState({
+    helperName: '',
+    resolutionDescription: ''
+  });
+
+  useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    const founderUnsubscribe = onSnapshot(doc(db, 'founders', user.uid), (snapshot) => {
+      if (snapshot.exists()) {
+        setFounder({ id: snapshot.id, ...snapshot.data() } as Founder);
+      } else {
+        setFounder(null);
+      }
+      setLoading(false);
+    }, (err) => handleFirestoreError(err, OperationType.GET, `founders/${user.uid}`));
+
+    const challengesQuery = query(
+      collection(db, 'challenges'),
+      orderBy('createdAt', 'desc')
+    );
+
+    const challengesUnsubscribe = onSnapshot(challengesQuery, (snapshot) => {
+      const allChallenges = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Challenge));
+      
+      // Filter based on visibility rules
+      const visibleChallenges = allChallenges.filter(c => 
+        c.type === 'public' || 
+        c.founderId === user.uid || 
+        isAdmin
+      );
+      
+      setChallenges(visibleChallenges);
+    }, (err) => handleFirestoreError(err, OperationType.LIST, 'challenges'));
+
+    return () => {
+      founderUnsubscribe();
+      challengesUnsubscribe();
+    };
+  }, [user, isAdmin]);
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    setRegistering(true);
+    try {
+      await setDoc(doc(db, 'founders', user.uid), {
+        name: formData.name,
+        username: formData.username,
+        instagram: formData.instagram,
+        bio: formData.bio,
+        company: {
+          name: formData.companyName,
+          bio: formData.companyBio
+        },
+        registeredAt: serverTimestamp()
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setRegistering(false);
+    }
+  };
+
+  const handleCreateChallenge = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !challengeData.title) return;
+
+    try {
+      await addDoc(collection(db, 'challenges'), {
+        founderId: user.uid,
+        title: challengeData.title,
+        description: challengeData.description,
+        type: challengeData.type,
+        status: 'open',
+        createdAt: serverTimestamp()
+      });
+      setShowNewChallenge(false);
+      setChallengeData({ title: '', description: '', type: 'public' });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleCompleteChallenge = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!completingChallenge) return;
+
+    try {
+      await updateDoc(doc(db, 'challenges', completingChallenge.id), {
+        status: 'completed',
+        helperName: completionData.helperName,
+        resolutionDescription: completionData.resolutionDescription,
+        completedAt: serverTimestamp()
+      });
+      setCompletingChallenge(null);
+      setCompletionData({ helperName: '', resolutionDescription: '' });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center py-20 italic text-stone-400">Carregando portal...</div>;
+  }
+
+  if (!user) {
+    return (
+      <div className="text-center py-20">
+        <h2 className="text-3xl font-serif italic mb-4">Acesso Restrito</h2>
+        <p className="text-stone-500">Por favor, faça login para acessar o Portal Founders.</p>
+      </div>
+    );
+  }
+
+  if (!founder) {
+    return (
+      <div className="max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <h2 className="text-4xl font-serif italic mb-2">Bem-vindo ao QDDO</h2>
+        <p className="text-stone-500 mb-12 font-serif italic">Complete seu cadastro para acessar o Portal Founders.</p>
+
+        <form onSubmit={handleRegister} className="bg-white rounded-3xl p-12 border border-stone-200 shadow-sm space-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Nome</label>
+              <input 
+                required
+                type="text" 
+                placeholder="Seu nome real"
+                value={formData.name}
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Nome de Usuário</label>
+              <input 
+                required
+                type="text" 
+                placeholder="@username"
+                value={formData.username}
+                onChange={e => setFormData({ ...formData, username: e.target.value })}
+                className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Instagram</label>
+            <div className="relative">
+              <Instagram className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-300" size={20} />
+              <input 
+                type="text" 
+                placeholder="link do seu perfil"
+                value={formData.instagram}
+                onChange={e => setFormData({ ...formData, instagram: e.target.value })}
+                className="w-full pl-12 pr-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Bio</label>
+            <textarea 
+              rows={3}
+              placeholder="Conte um pouco sobre você..."
+              value={formData.bio}
+              onChange={e => setFormData({ ...formData, bio: e.target.value })}
+              className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all resize-none"
+            />
+          </div>
+
+          <div className="pt-4 border-t border-stone-100">
+            <h3 className="font-serif italic text-xl mb-6 flex items-center gap-2">
+              <Building2 size={20} className="text-stone-400" />
+              Sua Empresa
+            </h3>
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Nome da Empresa</label>
+                <input 
+                  type="text" 
+                  placeholder="Nome da sua startup/negócio"
+                  value={formData.companyName}
+                  onChange={e => setFormData({ ...formData, companyName: e.target.value })}
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Bio da Empresa</label>
+                <textarea 
+                  rows={2}
+                  placeholder="O que sua empresa faz?"
+                  value={formData.companyBio}
+                  onChange={e => setFormData({ ...formData, companyBio: e.target.value })}
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all resize-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          <button 
+            type="submit"
+            disabled={registering}
+            className="w-full bg-stone-900 text-white py-5 rounded-2xl font-bold hover:bg-stone-800 transition-all shadow-xl shadow-stone-900/20"
+          >
+            {registering ? 'Cadastrando...' : 'Finalizar Cadastro'}
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  // Filter challenges based on active tab
+  const filteredChallenges = challenges.filter(c => {
+    if (activeSubTab === 'desafios-privados') return c.type === 'private';
+    if (activeSubTab === 'desafios-publicos') return c.type === 'public';
+    return true; // For 'checkin' or 'empresa' we might show a summary or specific view
+  });
+
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex items-center justify-between mb-12">
+        <div>
+          <h2 className="text-4xl font-serif italic mb-2">Olá, {founder.name}</h2>
+          <p className="text-stone-500 font-serif italic">Portal Founders • {activeSubTab.replace('-', ' ')}</p>
+        </div>
+        <button 
+          onClick={() => setShowNewChallenge(true)}
+          className="flex items-center gap-2 bg-stone-900 text-white px-6 py-3 rounded-2xl font-bold hover:bg-stone-800 transition-all shadow-lg shadow-stone-900/10"
+        >
+          <Plus size={20} />
+          Novo Desafio
+        </button>
+      </div>
+
+      {/* New Challenge Modal */}
+      {showNewChallenge && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
+          <div className="bg-white rounded-[40px] p-12 max-w-xl w-full shadow-2xl animate-in zoom-in-95 duration-300">
+            <h3 className="text-3xl font-serif italic mb-8">Criar Novo Desafio</h3>
+            <form onSubmit={handleCreateChallenge} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Título do Desafio</label>
+                <input 
+                  required
+                  type="text" 
+                  placeholder="Ex: Otimizar funil de vendas"
+                  value={challengeData.title}
+                  onChange={e => setChallengeData({ ...challengeData, title: e.target.value })}
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Descrição</label>
+                <textarea 
+                  rows={4}
+                  placeholder="Descreva o que você precisa resolver..."
+                  value={challengeData.description}
+                  onChange={e => setChallengeData({ ...challengeData, description: e.target.value })}
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Visibilidade</label>
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setChallengeData({ ...challengeData, type: 'public' })}
+                    className={cn(
+                      "flex items-center justify-center gap-2 py-4 rounded-2xl border font-bold transition-all",
+                      challengeData.type === 'public' ? "bg-stone-900 border-stone-900 text-white" : "border-stone-200 text-stone-400 hover:border-stone-400"
+                    )}
+                  >
+                    <Globe size={18} />
+                    Público
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setChallengeData({ ...challengeData, type: 'private' })}
+                    className={cn(
+                      "flex items-center justify-center gap-2 py-4 rounded-2xl border font-bold transition-all",
+                      challengeData.type === 'private' ? "bg-stone-900 border-stone-900 text-white" : "border-stone-200 text-stone-400 hover:border-stone-400"
+                    )}
+                  >
+                    <Lock size={18} />
+                    Privado
+                  </button>
+                </div>
+                <p className="text-[10px] text-stone-400 mt-2 italic">
+                  * Desafios privados são visíveis apenas para você e administradores do QDDO.
+                </p>
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button 
+                  type="button"
+                  onClick={() => setShowNewChallenge(false)}
+                  className="flex-1 border border-stone-200 text-stone-600 py-4 rounded-2xl font-bold hover:bg-stone-50 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-1 bg-stone-900 text-white py-4 rounded-2xl font-bold hover:bg-stone-800 transition-all shadow-lg shadow-stone-900/20"
+                >
+                  Criar Desafio
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Completion Modal */}
+      {completingChallenge && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
+          <div className="bg-white rounded-[40px] p-12 max-w-xl w-full shadow-2xl animate-in zoom-in-95 duration-300">
+            <h3 className="text-3xl font-serif italic mb-2">Concluir Desafio</h3>
+            <p className="text-stone-500 mb-8 font-serif italic">"{completingChallenge.title}"</p>
+            
+            <form onSubmit={handleCompleteChallenge} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Quem te ajudou?</label>
+                <div className="relative">
+                  <HelpCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-300" size={20} />
+                  <input 
+                    required
+                    type="text" 
+                    placeholder="Nome da pessoa ou parceiro"
+                    value={completionData.helperName}
+                    onChange={e => setCompletionData({ ...completionData, helperName: e.target.value })}
+                    className="w-full pl-12 pr-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Como foi resolvido?</label>
+                <textarea 
+                  rows={4}
+                  placeholder="Descreva a solução encontrada..."
+                  value={completionData.resolutionDescription}
+                  onChange={e => setCompletionData({ ...completionData, resolutionDescription: e.target.value })}
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all resize-none"
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button 
+                  type="button"
+                  onClick={() => setCompletingChallenge(null)}
+                  className="flex-1 border border-stone-200 text-stone-600 py-4 rounded-2xl font-bold hover:bg-stone-50 transition-all"
+                >
+                  Voltar
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
+                >
+                  Finalizar Tarefa
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Challenges List */}
+      <div className="grid grid-cols-1 gap-6">
+        {filteredChallenges.length === 0 ? (
+          <div className="bg-white rounded-3xl p-20 border border-stone-200 shadow-sm text-center">
+            <div className="w-16 h-16 bg-stone-50 rounded-full flex items-center justify-center mx-auto mb-6 text-stone-300">
+              <CheckSquare size={32} />
+            </div>
+            <h3 className="text-xl font-serif italic text-stone-400">Nenhum desafio encontrado nesta categoria</h3>
+            <button 
+              onClick={() => setShowNewChallenge(true)}
+              className="mt-6 text-stone-900 font-bold underline underline-offset-4 hover:text-stone-600 transition-colors"
+            >
+              Criar meu primeiro desafio
+            </button>
+          </div>
+        ) : (
+          filteredChallenges.map(challenge => (
+            <div 
+              key={challenge.id}
+              className={cn(
+                "bg-white rounded-3xl p-8 border transition-all flex flex-col sm:flex-row gap-8",
+                challenge.status === 'completed' ? "border-emerald-100 bg-emerald-50/10" : "border-stone-200 hover:border-stone-400 hover:shadow-xl"
+              )}
+            >
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={cn(
+                    "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5",
+                    challenge.type === 'private' ? "bg-stone-100 text-stone-500" : "bg-blue-50 text-blue-500"
+                  )}>
+                    {challenge.type === 'private' ? <Lock size={12} /> : <Globe size={12} />}
+                    {challenge.type === 'private' ? 'Privado' : 'Público'}
+                  </div>
+                  {challenge.status === 'completed' && (
+                    <div className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                      <CheckCircle2 size={12} />
+                      Concluído
+                    </div>
+                  )}
+                </div>
+                
+                <h3 className="text-2xl font-serif italic mb-2">{challenge.title}</h3>
+                <p className="text-stone-500 text-sm mb-6 leading-relaxed">{challenge.description}</p>
+                
+                {challenge.status === 'completed' && (
+                  <div className="mt-6 p-6 bg-white rounded-2xl border border-emerald-100 space-y-4">
+                    <div>
+                      <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Ajudado por</span>
+                      <p className="font-bold text-stone-900">{challenge.helperName}</p>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Solução</span>
+                      <p className="text-sm text-stone-600 italic">"{challenge.resolutionDescription}"</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="sm:w-48 flex flex-col justify-between border-t sm:border-t-0 sm:border-l border-stone-100 pt-6 sm:pt-0 sm:pl-8">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-stone-400">
+                    <Clock size={16} />
+                    <span className="text-[10px] font-bold uppercase">
+                      {new Date(challenge.createdAt?.seconds * 1000).toLocaleDateString('pt-BR')}
+                    </span>
+                  </div>
+                  {challenge.status === 'open' && challenge.founderId === user.uid && (
+                    <button 
+                      onClick={() => setCompletingChallenge(challenge)}
+                      className="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/10"
+                    >
+                      Concluir
+                      <ArrowRight size={18} />
+                    </button>
+                  )}
+                </div>
+                
+                {challenge.founderId !== user.uid && (
+                  <div className="mt-4 pt-4 border-t border-stone-50">
+                    <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-2">Founder</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-stone-100 rounded-full flex items-center justify-center text-stone-400">
+                        <UserIcon size={12} />
+                      </div>
+                      <span className="text-xs font-bold text-stone-900">@{challenge.founderId.slice(0, 6)}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}

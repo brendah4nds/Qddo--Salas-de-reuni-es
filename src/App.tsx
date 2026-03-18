@@ -22,12 +22,22 @@ import {
   startOfDay
 } from 'date-fns';
 import { 
-  LogOut
+  LogOut,
+  Calendar,
+  Users,
+  Building2,
+  Lock,
+  Globe,
+  CheckSquare,
+  LayoutDashboard,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react';
 import { db, auth, handleFirestoreError, OperationType } from './firebase';
 import { Room, Booking, BookingStatus } from './types';
 import { BookingFlow } from './components/BookingFlow';
 import { AdminPanel } from './components/AdminPanel';
+import { FounderPortal } from './components/FounderPortal';
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "bbrendaribeiroc@gmail.com";
 
@@ -43,10 +53,19 @@ export default function App() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [businessHours, setBusinessHours] = useState<string[]>(DEFAULT_BUSINESS_HOURS);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<'booking' | 'admin'>('booking');
+  const [view, setView] = useState<'booking' | 'admin' | 'portal'>('booking');
+  const [activeSubTab, setActiveSubTab] = useState<string>('escolha-sala');
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
   const [bookingStatus, setBookingStatus] = useState<BookingStatus>('idle');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [expandedTopics, setExpandedTopics] = useState<string[]>(['agendamento', 'portal']);
+
+  const toggleTopic = (topic: string) => {
+    setExpandedTopics(prev => 
+      prev.includes(topic) ? prev.filter(t => t !== topic) : [...prev, topic]
+    );
+  };
 
   // URL handling for specific rooms
   useEffect(() => {
@@ -133,15 +152,16 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F5F0] text-stone-900 font-sans selection:bg-stone-200">
+    <div className="min-h-screen bg-[#F5F5F0] text-stone-900 font-sans selection:bg-stone-200 flex flex-col">
       {/* Navigation */}
       <nav className="border-b border-stone-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
           <div 
             className="flex items-center gap-3 cursor-pointer group" 
             onClick={() => {
               window.history.pushState({}, '', '/');
               setView('booking');
+              setActiveSubTab('escolha-sala');
               setSelectedRoomId(null);
             }}
           >
@@ -153,19 +173,12 @@ export default function App() {
           </div>
           
           <div className="flex items-center gap-4">
-            {view === 'booking' ? (
+            {isAdmin && (
               <button 
-                onClick={() => setView('admin')}
+                onClick={() => setView(view === 'admin' ? 'booking' : 'admin')}
                 className="text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition-colors"
               >
-                Admin
-              </button>
-            ) : (
-              <button 
-                onClick={() => setView('booking')}
-                className="text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition-colors"
-              >
-                Agendar
+                {view === 'admin' ? 'Sair do Admin' : 'Painel Admin'}
               </button>
             )}
             
@@ -181,34 +194,148 @@ export default function App() {
         </div>
       </nav>
 
-      <main className="max-w-5xl mx-auto px-6 py-12">
-        {view === 'admin' ? (
-          <AdminPanel 
-            user={user} 
-            onLogin={handleLogin} 
-            rooms={rooms} 
-            bookings={bookings} 
-            businessHours={businessHours}
-            isAdmin={isAdmin}
-          />
-        ) : (
-          <BookingFlow 
-            rooms={rooms} 
-            bookings={bookings} 
-            businessHours={businessHours}
-            selectedRoomId={selectedRoomId}
-            setSelectedRoomId={setSelectedRoomId}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            status={bookingStatus}
-            setStatus={setBookingStatus}
-          />
-        )}
-      </main>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <aside className="w-72 border-r border-stone-200 bg-white flex flex-col sticky top-16 h-[calc(100vh-64px)] overflow-y-auto">
+          <div className="p-6 space-y-8">
+            {/* Agendamento Section */}
+            <div>
+              <button 
+                onClick={() => toggleTopic('agendamento')}
+                className="flex items-center justify-between w-full text-left group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center text-stone-600 group-hover:bg-stone-900 group-hover:text-white transition-colors">
+                    <Calendar size={18} />
+                  </div>
+                  <span className="font-serif italic text-lg">Agendamento de Sala</span>
+                </div>
+                {expandedTopics.includes('agendamento') ? <ChevronDown size={16} className="text-stone-400" /> : <ChevronRight size={16} className="text-stone-400" />}
+              </button>
+              
+              {expandedTopics.includes('agendamento') && (
+                <div className="mt-4 ml-11 space-y-2 border-l-2 border-stone-100">
+                  {[
+                    { id: 'escolha-sala', label: 'Escolha a sala' },
+                    { id: 'escolha-data', label: 'Escolha a data' },
+                    { id: 'escolha-horario', label: 'Escolha o horário' }
+                  ].map(sub => (
+                    <button
+                      key={sub.id}
+                      onClick={() => {
+                        setView('booking');
+                        setActiveSubTab(sub.id);
+                      }}
+                      className={`block w-full text-left px-4 py-2 text-sm transition-all rounded-r-lg ${
+                        view === 'booking' && activeSubTab === sub.id 
+                        ? "text-stone-900 font-bold border-l-2 border-stone-900 -ml-[2px] bg-stone-50" 
+                        : "text-stone-400 hover:text-stone-600 hover:bg-stone-50"
+                      }`}
+                    >
+                      {sub.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-      <footer className="border-t border-stone-200 py-12 bg-white">
-        <div className="max-w-5xl mx-auto px-6 text-center">
-          <p className="text-stone-400 text-sm font-serif italic">© 2026 qddo - Gestão Inteligente de Espaços - Brenda Ribeiro</p>
+            {/* Portal Founders Section */}
+            <div>
+              <button 
+                onClick={() => toggleTopic('portal')}
+                className="flex items-center justify-between w-full text-left group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center text-stone-600 group-hover:bg-stone-900 group-hover:text-white transition-colors">
+                    <LayoutDashboard size={18} />
+                  </div>
+                  <span className="font-serif italic text-lg">Portal Founders</span>
+                </div>
+                {expandedTopics.includes('portal') ? <ChevronDown size={16} className="text-stone-400" /> : <ChevronRight size={16} className="text-stone-400" />}
+              </button>
+              
+              {expandedTopics.includes('portal') && (
+                <div className="mt-4 ml-11 space-y-2 border-l-2 border-stone-100">
+                  {[
+                    { id: 'checkin', label: 'Checkin', icon: CheckSquare },
+                    { id: 'empresa', label: 'Empresa', icon: Building2 },
+                    { id: 'desafios-privados', label: 'Desafios Privados', icon: Lock },
+                    { id: 'desafios-publicos', label: 'Desafios Públicos', icon: Globe }
+                  ].map(sub => (
+                    <button
+                      key={sub.id}
+                      onClick={() => {
+                        setView('portal');
+                        setActiveSubTab(sub.id);
+                      }}
+                      className={`block w-full text-left px-4 py-2 text-sm transition-all rounded-r-lg ${
+                        view === 'portal' && activeSubTab === sub.id 
+                        ? "text-stone-900 font-bold border-l-2 border-stone-900 -ml-[2px] bg-stone-50" 
+                        : "text-stone-400 hover:text-stone-600 hover:bg-stone-50"
+                      }`}
+                    >
+                      {sub.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-auto p-6 border-t border-stone-100">
+            <div className="bg-stone-50 rounded-2xl p-4">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1">Status do Sistema</p>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span className="text-xs font-semibold text-stone-600">Operacional</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto p-12">
+          <div className="max-w-5xl mx-auto">
+            {view === 'admin' ? (
+              <AdminPanel 
+                user={user} 
+                onLogin={handleLogin} 
+                rooms={rooms} 
+                bookings={bookings} 
+                businessHours={businessHours}
+                isAdmin={isAdmin}
+              />
+            ) : view === 'portal' ? (
+              <FounderPortal 
+                user={user} 
+                activeSubTab={activeSubTab}
+                isAdmin={isAdmin}
+              />
+            ) : (
+              <BookingFlow 
+                rooms={rooms} 
+                bookings={bookings} 
+                businessHours={businessHours}
+                selectedRoomId={selectedRoomId}
+                setSelectedRoomId={setSelectedRoomId}
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+                status={bookingStatus}
+                setStatus={setBookingStatus}
+                activeSubTab={activeSubTab}
+                onStepChange={(stepId) => {
+                  const subTabs = ['escolha-sala', 'escolha-data', 'escolha-horario'];
+                  setActiveSubTab(subTabs[stepId - 1]);
+                }}
+              />
+            )}
+          </div>
+        </main>
+      </div>
+
+      <footer className="border-t border-stone-200 py-6 bg-white z-50">
+        <div className="max-w-[1600px] mx-auto px-6 text-center">
+          <p className="text-stone-400 text-[10px] uppercase tracking-widest font-bold">© 2026 qddo - Gestão Inteligente de Espaços - Brenda Ribeiro</p>
         </div>
       </footer>
     </div>

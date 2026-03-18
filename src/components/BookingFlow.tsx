@@ -42,7 +42,9 @@ export function BookingFlow({
   selectedDate,
   setSelectedDate,
   status,
-  setStatus
+  setStatus,
+  activeSubTab,
+  onStepChange
 }: {
   rooms: Room[];
   bookings: Booking[];
@@ -53,10 +55,28 @@ export function BookingFlow({
   setSelectedDate: (d: Date) => void;
   status: BookingStatus;
   setStatus: (s: BookingStatus) => void;
+  activeSubTab?: string;
+  onStepChange?: (step: number) => void;
 }) {
   const [step, setStep] = useState(1);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
   const [formData, setFormData] = useState({ name: '', email: '' });
+
+  // Sync internal step with external activeSubTab
+  useEffect(() => {
+    if (activeSubTab) {
+      const subTabs = ['escolha-sala', 'escolha-data', 'escolha-horario'];
+      const newStep = subTabs.indexOf(activeSubTab) + 1;
+      if (newStep > 0 && newStep !== step) {
+        setStep(newStep);
+      }
+    }
+  }, [activeSubTab]);
+
+  // Notify parent of step changes
+  useEffect(() => {
+    onStepChange?.(step);
+  }, [step]);
 
   // Reset step if room is unselected (e.g. via nav)
   useEffect(() => {
@@ -155,28 +175,7 @@ export function BookingFlow({
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Step Indicator */}
-      <div className="flex items-center justify-between mb-12 relative">
-        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-stone-200 -translate-y-1/2 z-0"></div>
-        {steps.map((s) => (
-          <div key={s.id} className="relative z-10 flex flex-col items-center">
-            <div className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300",
-              step >= s.id ? "bg-stone-900 text-white" : "bg-stone-200 text-stone-400"
-            )}>
-              {s.id}
-            </div>
-            <span className={cn(
-              "absolute -bottom-8 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap",
-              step === s.id ? "text-stone-900" : "text-stone-400"
-            )}>
-              {s.title}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-16">
+      <div className="mt-4">
         {/* Step 1: Room Selection */}
         {step === 1 && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
