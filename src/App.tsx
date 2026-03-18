@@ -38,6 +38,8 @@ import { Room, Booking, BookingStatus } from './types';
 import { BookingFlow } from './components/BookingFlow';
 import { AdminPanel } from './components/AdminPanel';
 import { FounderPortal } from './components/FounderPortal';
+import { LandingPage } from './components/LandingPage';
+import { RegistrationFlow } from './components/RegistrationFlow';
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "bbrendaribeiroc@gmail.com";
 
@@ -60,6 +62,9 @@ export default function App() {
   const [bookingStatus, setBookingStatus] = useState<BookingStatus>('idle');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedTopics, setExpandedTopics] = useState<string[]>(['agendamento', 'portal']);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [founderData, setFounderData] = useState<any>(null);
+  const [checkingFounder, setCheckingFounder] = useState(true);
 
   const toggleTopic = (topic: string) => {
     setExpandedTopics(prev => 
@@ -82,10 +87,37 @@ export default function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
+      if (!u) {
+        setFounderData(null);
+        setCheckingFounder(false);
+      }
       setLoading(false);
     });
     return unsubscribe;
   }, []);
+
+  // Founder data listener
+  useEffect(() => {
+    if (!user) {
+      setCheckingFounder(false);
+      return;
+    }
+
+    setCheckingFounder(true);
+    const unsubscribe = onSnapshot(doc(db, 'founders', user.uid), (snapshot) => {
+      if (snapshot.exists()) {
+        setFounderData(snapshot.data());
+      } else {
+        setFounderData(null);
+      }
+      setCheckingFounder(false);
+    }, (err) => {
+      handleFirestoreError(err, OperationType.GET, `founders/${user.uid}`);
+      setCheckingFounder(false);
+    });
+
+    return unsubscribe;
+  }, [user]);
 
   // Firestore listeners
   useEffect(() => {
@@ -139,16 +171,29 @@ export default function App() {
     }
   };
 
+  const handleRegister = async () => {
+    setIsRegistering(true);
+    await handleLogin();
+  };
+
   const handleLogout = () => signOut(auth);
 
   const isAdmin = user?.email === ADMIN_EMAIL;
 
-  if (loading) {
+  if (loading || (user && checkingFounder)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F5F5F0]">
         <div className="animate-pulse text-stone-500 font-serif italic text-xl">Carregando...</div>
       </div>
     );
+  }
+
+  if (!user) {
+    return <LandingPage onLogin={handleLogin} onRegister={handleRegister} />;
+  }
+
+  if (!founderData && !isAdmin) {
+    return <RegistrationFlow user={user} onComplete={() => setView('portal')} />;
   }
 
   return (
