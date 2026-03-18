@@ -42,27 +42,24 @@ export function Chat({ user }: { user: User | null }) {
     if (activeChat === 'public') {
       messagesQuery = query(
         collection(db, 'messages'),
-        where('receiverId', '==', null),
-        orderBy('createdAt', 'asc'),
+        where('chatId', '==', 'public'),
         limit(100)
       );
     } else {
-      // Private chat: messages where (sender=user AND receiver=activeChat) OR (sender=activeChat AND receiver=user)
-      // Firestore doesn't support OR in a simple way for this, so we might need two queries or a composite key
-      // For simplicity in this demo, we'll use a composite key or filter client-side if the volume is low
-      // But let's try a more robust approach: a 'chatId' which is sorted combination of both UIDs
       const chatId = [user.uid, activeChat].sort().join('_');
       messagesQuery = query(
         collection(db, 'messages'),
         where('chatId', '==', chatId),
-        orderBy('createdAt', 'asc'),
         limit(100)
       );
     }
 
     const messagesUnsubscribe = onSnapshot(messagesQuery, (snapshot) => {
       const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ChatMessage));
-      setMessages(msgs);
+      const sortedMsgs = msgs.sort((a, b) => 
+        (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0)
+      );
+      setMessages(sortedMsgs);
       setTimeout(() => {
         scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
@@ -91,6 +88,7 @@ export function Chat({ user }: { user: User | null }) {
       msgData.chatId = [user.uid, activeChat].sort().join('_');
     } else {
       msgData.receiverId = null;
+      msgData.chatId = 'public';
     }
 
     try {

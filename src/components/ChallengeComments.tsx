@@ -29,13 +29,15 @@ export function ChallengeComments({ challengeId, user }: { challengeId: string; 
 
     const q = query(
       collection(db, 'comments'),
-      where('challengeId', '==', challengeId),
-      orderBy('createdAt', 'asc')
+      where('challengeId', '==', challengeId)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const commentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Comment));
-      setComments(commentsData);
+      const sortedComments = commentsData.sort((a, b) => 
+        (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0)
+      );
+      setComments(sortedComments);
       setLoading(false);
     }, (err) => handleFirestoreError(err, OperationType.LIST, `comments/${challengeId}`));
 

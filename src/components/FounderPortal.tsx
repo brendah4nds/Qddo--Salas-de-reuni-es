@@ -3,6 +3,7 @@ import {
   collection, 
   query, 
   where, 
+  or,
   onSnapshot, 
   doc, 
   setDoc, 
@@ -88,23 +89,59 @@ export function FounderPortal({
       setLoading(false);
     }, (err) => handleFirestoreError(err, OperationType.GET, `founders/${user.uid}`));
 
-    const challengesQuery = query(
-      collection(db, 'challenges'),
-      orderBy('createdAt', 'desc')
-    );
-
-    const challengesUnsubscribe = onSnapshot(challengesQuery, (snapshot) => {
-      const allChallenges = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Challenge));
-      
-      // Filter based on visibility rules
-      const visibleChallenges = allChallenges.filter(c => 
-        c.type === 'public' || 
-        c.founderId === user.uid || 
-        isAdmin
+    let challengesUnsubscribe: () => void;
+    if (isAdmin) {
+      const q = query(
+        collection(db, 'challenges')
+      );
+      challengesUnsubscribe = onSnapshot(q, (snapshot) => {
+        const allChallenges = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Challenge));
+        const sortedChallenges = allChallenges.sort((a, b) => 
+          (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
+        );
+        setChallenges(sortedChallenges);
+      }, (err) => handleFirestoreError(err, OperationType.LIST, 'challenges'));
+    } else {
+      // Fetch public and private separately to avoid complex index/rules issues
+      const qPublic = query(
+        collection(db, 'challenges'), 
+        where('type', '==', 'public')
+      );
+      const qPrivate = query(
+        collection(db, 'challenges'), 
+        where('founderId', '==', user.uid), 
+        where('type', '==', 'private')
       );
       
-      setChallenges(visibleChallenges);
-    }, (err) => handleFirestoreError(err, OperationType.LIST, 'challenges'));
+      const unsubPublic = onSnapshot(qPublic, (snapshot) => {
+        const publicChallenges = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Challenge));
+        setChallenges(prev => {
+          const others = prev.filter(c => c.type !== 'public');
+          const merged = [...publicChallenges, ...others].sort((a, b) => 
+            (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
+          );
+          // Remove duplicates if any
+          return Array.from(new Map(merged.map(item => [item.id, item])).values());
+        });
+      }, (err) => handleFirestoreError(err, OperationType.LIST, 'challenges/public'));
+
+      const unsubPrivate = onSnapshot(qPrivate, (snapshot) => {
+        const privateChallenges = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Challenge));
+        setChallenges(prev => {
+          const others = prev.filter(c => c.founderId !== user.uid || c.type !== 'private');
+          const merged = [...privateChallenges, ...others].sort((a, b) => 
+            (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
+          );
+          // Remove duplicates if any
+          return Array.from(new Map(merged.map(item => [item.id, item])).values());
+        });
+      }, (err) => handleFirestoreError(err, OperationType.LIST, 'challenges/private'));
+
+      challengesUnsubscribe = () => {
+        unsubPublic();
+        unsubPrivate();
+      };
+    }
 
     return () => {
       founderUnsubscribe();

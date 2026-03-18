@@ -41,9 +41,10 @@
 // Collection: comments
 // Fields:
 //   - challengeId: string (required)
-//   - authorId: string (required)
-//   - authorName: string (required)
-//   - content: string (required)
+//   - userId: string (required)
+//   - userName: string (required)
+//   - userPhoto: string (optional)
+//   - text: string (required)
 //   - createdAt: timestamp (required)
 //
 // Collection: messages
@@ -51,7 +52,9 @@
 //   - chatId: string (required)
 //   - senderId: string (required)
 //   - senderName: string (required)
-//   - content: string (required)
+//   - senderPhoto: string (optional)
+//   - receiverId: string (optional, null for public)
+//   - text: string (required)
 //   - createdAt: timestamp (required)
 //
 // ===============================================================
@@ -105,20 +108,20 @@ service cloud.firestore {
     }
 
     function isValidComment(data) {
-      return data.keys().hasAll(['challengeId', 'authorId', 'authorName', 'content', 'createdAt']) &&
+      return data.keys().hasAll(['challengeId', 'userId', 'userName', 'text', 'createdAt']) &&
              data.challengeId is string &&
-             data.authorId is string &&
-             data.authorName is string && data.authorName.size() > 0 &&
-             data.content is string && data.content.size() > 0 && data.content.size() < 1000 &&
+             data.userId is string &&
+             data.userName is string && data.userName.size() > 0 &&
+             data.text is string && data.text.size() > 0 && data.text.size() < 1000 &&
              data.createdAt is timestamp;
     }
 
     function isValidMessage(data) {
-      return data.keys().hasAll(['chatId', 'senderId', 'senderName', 'content', 'createdAt']) &&
+      return data.keys().hasAll(['chatId', 'senderId', 'senderName', 'text', 'createdAt']) &&
              data.chatId is string &&
              data.senderId is string &&
              data.senderName is string && data.senderName.size() > 0 &&
-             data.content is string && data.content.size() > 0 && data.content.size() < 2000 &&
+             data.text is string && data.text.size() > 0 && data.text.size() < 2000 &&
              data.createdAt is timestamp;
     }
 
@@ -157,18 +160,20 @@ service cloud.firestore {
     }
 
     match /comments/{commentId} {
-      allow read: if isAuthenticated(); // Simplified for now, but ideally checks challenge visibility
+      allow read: if isAuthenticated(); 
       allow create: if isAuthenticated() && 
-                      isOwner(request.resource.data.authorId) && 
+                      isOwner(request.resource.data.userId) && 
                       isValidComment(request.resource.data);
       allow delete: if isAuthenticated() && 
-                      (isOwner(resource.data.authorId) || isAdmin());
+                      (isOwner(resource.data.userId) || isAdmin());
     }
 
     match /messages/{messageId} {
       allow read: if isAuthenticated() && 
                     (resource.data.chatId == 'public' || 
-                     resource.data.chatId.contains(request.auth.uid));
+                     resource.data.senderId == request.auth.uid || 
+                     resource.data.receiverId == request.auth.uid ||
+                     isAdmin());
       allow create: if isAuthenticated() && 
                       isOwner(request.resource.data.senderId) && 
                       isValidMessage(request.resource.data);
