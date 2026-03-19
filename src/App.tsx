@@ -32,7 +32,11 @@ import {
   LayoutDashboard,
   ChevronDown,
   ChevronRight,
-  MessageSquare
+  MessageSquare,
+  Bell,
+  Newspaper,
+  ArrowRight,
+  LayoutGrid
 } from 'lucide-react';
 import { db, auth, handleFirestoreError, OperationType } from './firebase';
 import { Room, Booking, BookingStatus } from './types';
@@ -255,92 +259,158 @@ export default function App() {
         {/* Sidebar */}
         <aside className="w-72 border-r border-stone-200 bg-white flex flex-col sticky top-16 h-[calc(100vh-64px)] overflow-y-auto">
           <div className="p-6 space-y-8">
+            {/* Geral Section */}
+            <div>
+              <button 
+                onClick={() => {
+                  setView('general');
+                  setActiveSubTab('general');
+                }}
+                className={`flex items-center justify-between w-full text-left group transition-all p-2 rounded-xl ${
+                  view === 'general' ? 'bg-stone-900 text-white shadow-lg shadow-stone-200' : 'hover:bg-stone-50'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                    view === 'general' ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600 group-hover:bg-stone-900 group-hover:text-white'
+                  }`}>
+                    <LayoutGrid size={18} />
+                  </div>
+                  <span className={`font-serif italic text-lg ${view === 'general' ? 'text-white' : 'text-stone-900'}`}>Geral</span>
+                </div>
+              </button>
+            </div>
+
             {/* Agendamento Section */}
             <div>
               <button 
-                onClick={() => toggleTopic('agendamento')}
-                className="flex items-center justify-between w-full text-left group"
+                onClick={() => {
+                  setView('booking');
+                  setActiveSubTab('escolha-sala');
+                }}
+                className={`flex items-center justify-between w-full text-left group transition-all p-2 rounded-xl ${
+                  view === 'booking' ? 'bg-stone-900 text-white shadow-lg shadow-stone-200' : 'hover:bg-stone-50'
+                }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center text-stone-600 group-hover:bg-stone-900 group-hover:text-white transition-colors">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                    view === 'booking' ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600 group-hover:bg-stone-900 group-hover:text-white'
+                  }`}>
                     <Calendar size={18} />
                   </div>
-                  <span className="font-serif italic text-lg">Agendamento de Sala</span>
+                  <span className={`font-serif italic text-lg ${view === 'booking' ? 'text-white' : 'text-stone-900'}`}>Agendamento</span>
                 </div>
-                {expandedTopics.includes('agendamento') ? <ChevronDown size={16} className="text-stone-400" /> : <ChevronRight size={16} className="text-stone-400" />}
               </button>
-              
-              {expandedTopics.includes('agendamento') && (
-                <div className="mt-4 ml-11 space-y-2 border-l-2 border-stone-100">
-                  {[
-                    { id: 'escolha-sala', label: 'Escolha a sala' },
-                    { id: 'escolha-data', label: 'Escolha a data' },
-                    { id: 'escolha-horario', label: 'Escolha o horário' }
-                  ].map(sub => (
-                    <button
-                      key={sub.id}
-                      onClick={() => {
-                        setView('booking');
-                        setActiveSubTab(sub.id);
-                      }}
-                      className={`block w-full text-left px-4 py-2 text-sm transition-all rounded-r-lg ${
-                        view === 'booking' && activeSubTab === sub.id 
-                        ? "text-stone-900 font-bold border-l-2 border-stone-900 -ml-[2px] bg-stone-50" 
-                        : "text-stone-400 hover:text-stone-600 hover:bg-stone-50"
-                      }`}
-                    >
-                      {sub.label}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
-            {/* Portal Founders Section */}
+            {/* Check-in Section */}
             <div>
               <button 
-                onClick={() => toggleTopic('portal')}
-                className="flex items-center justify-between w-full text-left group"
+                onClick={() => {
+                  setView('portal');
+                  setActiveSubTab('checkin');
+                }}
+                className={`flex items-center justify-between w-full text-left group transition-all p-2 rounded-xl ${
+                  view === 'portal' && activeSubTab === 'checkin' ? 'bg-stone-900 text-white shadow-lg shadow-stone-200' : 'hover:bg-stone-50'
+                }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center text-stone-600 group-hover:bg-stone-900 group-hover:text-white transition-colors">
-                    <LayoutDashboard size={18} />
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                    view === 'portal' && activeSubTab === 'checkin' ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600 group-hover:bg-stone-900 group-hover:text-white'
+                  }`}>
+                    <CheckSquare size={18} />
                   </div>
-                  <span className="font-serif italic text-lg">Portal Founders</span>
+                  <span className={`font-serif italic text-lg ${view === 'portal' && activeSubTab === 'checkin' ? 'text-white' : 'text-stone-900'}`}>Check-in</span>
                 </div>
-                {expandedTopics.includes('portal') ? <ChevronDown size={16} className="text-stone-400" /> : <ChevronRight size={16} className="text-stone-400" />}
               </button>
-              
-              {expandedTopics.includes('portal') && (
-                <div className="mt-4 ml-11 space-y-2 border-l-2 border-stone-100">
-                  {[
-                    { id: 'checkin', label: 'Checkin', icon: CheckSquare },
-                    { id: 'empresa', label: 'Empresa', icon: Building2 },
-                    { id: 'desafios-privados', label: 'Desafios Privados', icon: Lock },
-                    { id: 'desafios-publicos', label: 'Desafios Públicos', icon: Globe },
-                    { id: 'bate-papo', label: 'Bate-papo', icon: MessageSquare }
-                  ].map(sub => (
-                    <button
-                      key={sub.id}
-                      onClick={() => {
-                        if (sub.id === 'bate-papo') {
-                          setView('chat');
-                        } else {
-                          setView('portal');
-                        }
-                        setActiveSubTab(sub.id);
-                      }}
-                      className={`block w-full text-left px-4 py-2 text-sm transition-all rounded-r-lg ${
-                        (view === 'portal' || view === 'chat') && activeSubTab === sub.id 
-                        ? "text-stone-900 font-bold border-l-2 border-stone-900 -ml-[2px] bg-stone-50" 
-                        : "text-stone-400 hover:text-stone-600 hover:bg-stone-50"
-                      }`}
-                    >
-                      {sub.label}
-                    </button>
-                  ))}
+            </div>
+
+            {/* Empresa Section */}
+            <div>
+              <button 
+                onClick={() => {
+                  setView('portal');
+                  setActiveSubTab('empresa');
+                }}
+                className={`flex items-center justify-between w-full text-left group transition-all p-2 rounded-xl ${
+                  view === 'portal' && activeSubTab === 'empresa' ? 'bg-stone-900 text-white shadow-lg shadow-stone-200' : 'hover:bg-stone-50'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                    view === 'portal' && activeSubTab === 'empresa' ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600 group-hover:bg-stone-900 group-hover:text-white'
+                  }`}>
+                    <Building2 size={18} />
+                  </div>
+                  <span className={`font-serif italic text-lg ${view === 'portal' && activeSubTab === 'empresa' ? 'text-white' : 'text-stone-900'}`}>Empresa</span>
                 </div>
-              )}
+              </button>
+            </div>
+
+            {/* Desafios Section */}
+            <div>
+              <button 
+                onClick={() => {
+                  setView('portal');
+                  setActiveSubTab('desafios-publicos');
+                }}
+                className={`flex items-center justify-between w-full text-left group transition-all p-2 rounded-xl ${
+                  view === 'portal' && (activeSubTab === 'desafios-publicos' || activeSubTab === 'desafios-privados') ? 'bg-stone-900 text-white shadow-lg shadow-stone-200' : 'hover:bg-stone-50'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                    view === 'portal' && (activeSubTab === 'desafios-publicos' || activeSubTab === 'desafios-privados') ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600 group-hover:bg-stone-900 group-hover:text-white'
+                  }`}>
+                    <Globe size={18} />
+                  </div>
+                  <span className={`font-serif italic text-lg ${view === 'portal' && (activeSubTab === 'desafios-publicos' || activeSubTab === 'desafios-privados') ? 'text-white' : 'text-stone-900'}`}>Desafios</span>
+                </div>
+              </button>
+            </div>
+
+            {/* Notícias Section */}
+            <div>
+              <button 
+                onClick={() => {
+                  setView('news');
+                  setActiveSubTab('news');
+                }}
+                className={`flex items-center justify-between w-full text-left group transition-all p-2 rounded-xl ${
+                  view === 'news' ? 'bg-stone-900 text-white shadow-lg shadow-stone-200' : 'hover:bg-stone-50'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                    view === 'news' ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600 group-hover:bg-stone-900 group-hover:text-white'
+                  }`}>
+                    <Newspaper size={18} />
+                  </div>
+                  <span className={`font-serif italic text-lg ${view === 'news' ? 'text-white' : 'text-stone-900'}`}>Notícias</span>
+                </div>
+              </button>
+            </div>
+
+            {/* Bate-papo Section */}
+            <div>
+              <button 
+                onClick={() => {
+                  setView('chat');
+                  setActiveSubTab('bate-papo');
+                }}
+                className={`flex items-center justify-between w-full text-left group transition-all p-2 rounded-xl ${
+                  view === 'chat' ? 'bg-stone-900 text-white shadow-lg shadow-stone-200' : 'hover:bg-stone-50'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                    view === 'chat' ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600 group-hover:bg-stone-900 group-hover:text-white'
+                  }`}>
+                    <MessageSquare size={18} />
+                  </div>
+                  <span className={`font-serif italic text-lg ${view === 'chat' ? 'text-white' : 'text-stone-900'}`}>Bate-papo</span>
+                </div>
+              </button>
             </div>
           </div>
 
@@ -372,11 +442,97 @@ export default function App() {
               <FounderPortal 
                 user={user} 
                 activeSubTab={activeSubTab}
+                setActiveSubTab={setActiveSubTab}
                 isAdmin={isAdmin}
                 founders={allFounders}
               />
             ) : view === 'chat' ? (
               <Chat user={user} />
+            ) : view === 'news' ? (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="mb-12">
+                  <h2 className="text-4xl font-serif italic mb-2">Notícias</h2>
+                  <p className="text-stone-500 font-serif italic">Fique por dentro das novidades da comunidade QDDO.</p>
+                </div>
+                <div className="grid grid-cols-1 gap-8">
+                  {[
+                    {
+                      title: "Novo Espaço QDDO Inaugurado",
+                      date: "19 de Março, 2026",
+                      excerpt: "Estamos felizes em anunciar a abertura da nossa nova sala de reuniões executiva.",
+                      category: "Comunidade"
+                    },
+                    {
+                      title: "Workshop de Pitch para Founders",
+                      date: "22 de Março, 2026",
+                      excerpt: "Participe do nosso próximo workshop focado em captação de investimento.",
+                      category: "Eventos"
+                    }
+                  ].map((item, i) => (
+                    <div key={i} className="bg-white rounded-[40px] p-10 border border-stone-200 shadow-sm hover:shadow-xl transition-all group">
+                      <div className="flex items-center gap-4 mb-4">
+                        <span className="text-[10px] uppercase tracking-widest font-bold bg-stone-100 px-3 py-1 rounded-full text-stone-500">{item.category}</span>
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400">{item.date}</span>
+                      </div>
+                      <h3 className="text-2xl font-serif italic mb-4 group-hover:text-stone-600 transition-colors">{item.title}</h3>
+                      <p className="text-stone-500 leading-relaxed mb-6">{item.excerpt}</p>
+                      <button className="text-xs font-bold uppercase tracking-widest text-stone-900 flex items-center gap-2 group-hover:gap-3 transition-all">
+                        Ler mais <ArrowRight size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : view === 'general' ? (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="mb-12">
+                  <h2 className="text-4xl font-serif italic mb-2">Visão Geral</h2>
+                  <p className="text-stone-500 font-serif italic">Bem-vindo ao painel geral da comunidade QDDO.</p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                  <div className="bg-white p-8 rounded-[32px] border border-stone-100 shadow-sm">
+                    <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mb-6">
+                      <Calendar className="text-stone-600" size={24} />
+                    </div>
+                    <h3 className="text-xl font-serif italic mb-2">Próximas Reservas</h3>
+                    <p className="text-stone-400 text-sm">Você não possui reservas para hoje.</p>
+                  </div>
+                  
+                  <div className="bg-white p-8 rounded-[32px] border border-stone-100 shadow-sm">
+                    <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mb-6">
+                      <Globe className="text-stone-600" size={24} />
+                    </div>
+                    <h3 className="text-xl font-serif italic mb-2">Desafios Ativos</h3>
+                    <p className="text-stone-400 text-sm">Existem 3 novos desafios na comunidade.</p>
+                  </div>
+
+                  <div className="bg-white p-8 rounded-[32px] border border-stone-100 shadow-sm">
+                    <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mb-6">
+                      <Bell className="text-stone-600" size={24} />
+                    </div>
+                    <h3 className="text-xl font-serif italic mb-2">Notificações</h3>
+                    <p className="text-stone-400 text-sm">Nenhuma notificação pendente.</p>
+                  </div>
+                </div>
+
+                <div className="bg-stone-900 text-white p-12 rounded-[48px] relative overflow-hidden">
+                  <div className="relative z-10">
+                    <h2 className="text-3xl font-serif italic mb-4">Pronto para o próximo passo?</h2>
+                    <p className="text-stone-400 mb-8 max-w-md">Explore as ferramentas exclusivas para founders e acelere seu crescimento.</p>
+                    <button 
+                      onClick={() => {
+                        setView('portal');
+                        setActiveSubTab('checkin');
+                      }}
+                      className="bg-white text-stone-900 px-8 py-4 rounded-2xl font-bold hover:bg-stone-100 transition-all"
+                    >
+                      Acessar Portal
+                    </button>
+                  </div>
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                </div>
+              </div>
             ) : (
               <BookingFlow 
                 rooms={rooms} 

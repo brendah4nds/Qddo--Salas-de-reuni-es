@@ -175,6 +175,38 @@ export function BookingFlow({
 
   return (
     <div className="max-w-4xl mx-auto">
+      {/* Step Indicator */}
+      <div className="flex items-center justify-center gap-4 mb-12">
+        {[
+          { id: 1, label: 'Escolha a sala' },
+          { id: 2, label: 'Escolha a data' },
+          { id: 3, label: 'Escolha o horário' }
+        ].map((s, i) => (
+          <React.Fragment key={s.id}>
+            <div className="flex items-center gap-2">
+              <div className={cn(
+                "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
+                step >= s.id ? "bg-stone-900 text-white shadow-lg shadow-stone-200" : "bg-stone-100 text-stone-400"
+              )}>
+                {s.id}
+              </div>
+              <span className={cn(
+                "text-xs uppercase tracking-widest font-bold transition-all",
+                step >= s.id ? "text-stone-900" : "text-stone-300"
+              )}>
+                {s.label}
+              </span>
+            </div>
+            {i < 2 && (
+              <div className={cn(
+                "w-8 h-[1px] transition-all",
+                step > s.id ? "bg-stone-900" : "bg-stone-100"
+              )} />
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+
       <div className="mt-4">
         {/* Step 1: Room Selection */}
         {step === 1 && (

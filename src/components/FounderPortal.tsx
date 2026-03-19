@@ -40,11 +40,13 @@ function cn(...inputs: ClassValue[]) {
 export function FounderPortal({ 
   user, 
   activeSubTab,
+  setActiveSubTab,
   isAdmin,
   founders = []
 }: { 
   user: User | null; 
   activeSubTab: string;
+  setActiveSubTab?: (tab: string) => void;
   isAdmin: boolean;
   founders?: any[];
 }) {
@@ -75,6 +77,8 @@ export function FounderPortal({
     helperName: '',
     resolutionDescription: ''
   });
+
+  const [selectedCompanyFounder, setSelectedCompanyFounder] = useState<any | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -239,7 +243,7 @@ export function FounderPortal({
   const filteredChallenges = challenges.filter(c => {
     if (activeSubTab === 'desafios-privados') return c.type === 'private';
     if (activeSubTab === 'desafios-publicos') return c.type === 'public';
-    return true; // For 'checkin' or 'empresa' we might show a summary or specific view
+    return true; 
   });
 
   return (
@@ -249,16 +253,212 @@ export function FounderPortal({
           <h2 className="text-4xl font-serif italic mb-2">Olá, {founder?.name || user.displayName || 'Admin'}</h2>
           <p className="text-stone-500 font-serif italic">Portal Founders • {activeSubTab.replace('-', ' ')}</p>
         </div>
-        <button 
-          onClick={() => setShowNewChallenge(true)}
-          className="flex items-center gap-2 bg-stone-900 text-white px-6 py-3 rounded-2xl font-bold hover:bg-stone-800 transition-all shadow-lg shadow-stone-900/10"
-        >
-          <Plus size={20} />
-          Novo Desafio
-        </button>
+        {(activeSubTab === 'desafios-publicos' || activeSubTab === 'desafios-privados') && (
+          <button 
+            onClick={() => setShowNewChallenge(true)}
+            className="flex items-center gap-2 bg-stone-900 text-white px-6 py-3 rounded-2xl font-bold hover:bg-stone-800 transition-all shadow-lg shadow-stone-900/10"
+          >
+            <Plus size={20} />
+            Novo Desafio
+          </button>
+        )}
       </div>
 
-      {/* New Challenge Modal */}
+      {(activeSubTab === 'desafios-publicos' || activeSubTab === 'desafios-privados') && (
+        <div className="flex gap-4 mb-8">
+          <button 
+            onClick={() => setActiveSubTab?.('desafios-publicos')}
+            className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
+              activeSubTab === 'desafios-publicos' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
+            }`}
+          >
+            Públicos
+          </button>
+          <button 
+            onClick={() => setActiveSubTab?.('desafios-privados')}
+            className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
+              activeSubTab === 'desafios-privados' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
+            }`}
+          >
+            Privados
+          </button>
+        </div>
+      )}
+
+      {activeSubTab === 'checkin' && (
+        <div className="bg-white rounded-[40px] p-12 border border-stone-200 shadow-sm">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-8">
+              <CheckSquare size={40} className="text-stone-900" />
+            </div>
+            <h3 className="text-3xl font-serif italic mb-4">Check-in Diário</h3>
+            <p className="text-stone-500 mb-12 leading-relaxed">
+              Registre sua presença e compartilhe como está sendo seu dia na comunidade QDDO.
+            </p>
+            <button className="w-full bg-stone-900 text-white py-6 rounded-3xl font-bold hover:bg-stone-800 transition-all shadow-xl shadow-stone-900/20">
+              Realizar Check-in Agora
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeSubTab === 'empresa' && (
+        <div className="space-y-8">
+          {isAdmin ? (
+            <div className="grid grid-cols-1 gap-6">
+              {selectedCompanyFounder ? (
+                <div className="bg-white rounded-[40px] p-12 border border-stone-200 shadow-sm animate-in fade-in zoom-in-95 duration-300">
+                  <button 
+                    onClick={() => setSelectedCompanyFounder(null)}
+                    className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 mb-8 flex items-center gap-2"
+                  >
+                    <ArrowRight size={16} className="rotate-180" />
+                    Voltar para lista
+                  </button>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div className="space-y-8">
+                      <div>
+                        <h3 className="text-3xl font-serif italic mb-6">Dados do Founder</h3>
+                        <div className="space-y-4">
+                          <div>
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Nome Completo</span>
+                            <p className="font-bold text-stone-900">{selectedCompanyFounder.name}</p>
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Username</span>
+                            <p className="text-stone-600">@{selectedCompanyFounder.username}</p>
+                          </div>
+                          {selectedCompanyFounder.instagram && (
+                            <div>
+                              <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Instagram</span>
+                              <p className="text-stone-600">{selectedCompanyFounder.instagram}</p>
+                            </div>
+                          )}
+                          <div>
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Bio</span>
+                            <p className="text-sm text-stone-500 leading-relaxed">{selectedCompanyFounder.bio || 'Sem bio informada'}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-8">
+                      <div className="bg-stone-50 rounded-3xl p-8 border border-stone-100">
+                        <h3 className="text-3xl font-serif italic mb-6">Dados da Empresa</h3>
+                        <div className="space-y-4">
+                          <div>
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Nome da Empresa</span>
+                            <p className="font-bold text-stone-900 text-xl">{selectedCompanyFounder.company?.name || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Sobre a Empresa</span>
+                            <p className="text-sm text-stone-500 leading-relaxed">{selectedCompanyFounder.company?.bio || 'Sem descrição informada'}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
+                  <div className="p-8 border-b border-stone-100">
+                    <h3 className="text-xl font-serif italic">Lista de Empresas</h3>
+                    <p className="text-stone-400 text-sm">Visualize todos os founders e suas respectivas empresas.</p>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-stone-50 border-b border-stone-100">
+                          <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Empresa</th>
+                          <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Founder</th>
+                          <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400 text-right">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {founders.map(f => (
+                          <tr key={f.id} className="border-b border-stone-50 hover:bg-stone-50/50 transition-colors">
+                            <td className="px-8 py-6">
+                              <button 
+                                onClick={() => setSelectedCompanyFounder(f)}
+                                className="font-bold text-stone-900 hover:text-stone-600 transition-colors text-left"
+                              >
+                                {f.company?.name || 'Sem empresa'}
+                              </button>
+                            </td>
+                            <td className="px-8 py-6">
+                              <div className="text-sm font-medium text-stone-700">{f.name}</div>
+                              <div className="text-[10px] text-stone-400">@{f.username}</div>
+                            </td>
+                            <td className="px-8 py-6 text-right">
+                              <button 
+                                onClick={() => setSelectedCompanyFounder(f)}
+                                className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors"
+                              >
+                                Ver Detalhes
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bg-white rounded-[40px] p-12 border border-stone-200 shadow-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="text-3xl font-serif italic mb-6">Seu Perfil Founder</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Nome Completo</span>
+                        <p className="font-bold text-stone-900">{founder?.name}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Username</span>
+                        <p className="text-stone-600">@{founder?.username}</p>
+                      </div>
+                      {founder?.instagram && (
+                        <div>
+                          <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Instagram</span>
+                          <p className="text-stone-600">{founder.instagram}</p>
+                        </div>
+                      )}
+                      <div>
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Sua Bio</span>
+                        <p className="text-sm text-stone-500 leading-relaxed">{founder?.bio || 'Você ainda não adicionou uma bio.'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-8">
+                  <div className="bg-stone-50 rounded-3xl p-8 border border-stone-100">
+                    <h3 className="text-3xl font-serif italic mb-6">Sua Empresa</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Nome da Empresa</span>
+                        <p className="font-bold text-stone-900 text-xl">{founder?.company?.name || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Sobre a Empresa</span>
+                        <p className="text-sm text-stone-500 leading-relaxed">{founder?.company?.bio || 'Você ainda não adicionou uma descrição para sua empresa.'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeSubTab !== 'empresa' && (
+        <>
+          {/* New Challenge Modal */}
       {showNewChallenge && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
           <div className="bg-white rounded-[40px] p-12 max-w-xl w-full shadow-2xl animate-in zoom-in-95 duration-300">
@@ -501,6 +701,8 @@ export function FounderPortal({
           ))
         )}
       </div>
-    </div>
+    </>
+  )}
+</div>
   );
 }
