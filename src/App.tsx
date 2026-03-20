@@ -54,7 +54,8 @@ import {
   Trophy,
   CalendarDays,
   X,
-  Plus
+  Plus,
+  Menu
 } from 'lucide-react';
 import { db, auth, handleFirestoreError, OperationType } from './firebase';
 import { Room, Booking, BookingStatus, Challenge } from './types';
@@ -89,7 +90,26 @@ export default function App() {
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
   const [bookingStatus, setBookingStatus] = useState<BookingStatus>('idle');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
+
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+  }, [view, activeSubTab]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [expandedTopics, setExpandedTopics] = useState<string[]>(['agendamento', 'portal']);
   const [isRegistering, setIsRegistering] = useState(false);
   const [founderData, setFounderData] = useState<any>(null);
@@ -264,24 +284,32 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F5F0] text-stone-900 font-sans selection:bg-stone-200 flex flex-col">
+    <div className="h-screen overflow-hidden bg-[#F5F5F0] text-stone-900 font-sans selection:bg-stone-200 flex flex-col">
       {/* Navigation */}
       <nav className="border-b border-stone-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
-          <div 
-            className="flex items-center gap-3 cursor-pointer group" 
-            onClick={() => {
-              window.history.pushState({}, '', '/');
-              setView('general');
-              setActiveSubTab('general');
-              setSelectedRoomId(null);
-            }}
-          >
+        <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 -ml-2 rounded-xl text-stone-500 hover:bg-stone-100 transition-colors"
+            >
+              {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+            <div 
+              className="flex items-center gap-3 cursor-pointer group" 
+              onClick={() => {
+                window.history.pushState({}, '', '/');
+                setView('general');
+                setActiveSubTab('general');
+                setSelectedRoomId(null);
+              }}
+            >
             <div className="relative w-10 h-10 bg-black rounded-lg flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
               <div className="w-6 h-6 border-[3px] border-white rounded-full"></div>
               <div className="absolute bottom-1.5 right-1.5 w-2.5 h-2.5 bg-[#FF4500] rounded-full shadow-[0_0_8px_rgba(255,69,0,0.4)]"></div>
             </div>
             <h1 className="font-sans font-black text-2xl tracking-tighter italic">qddo</h1>
+          </div>
           </div>
           
           <div className="flex items-center gap-4">
@@ -306,9 +334,20 @@ export default function App() {
         </div>
       </nav>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile Overlay */}
+        {sidebarOpen && (
+          <div 
+            className="absolute inset-0 bg-stone-900/50 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-300"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
-        <aside className="w-72 border-r border-stone-200 bg-white flex flex-col sticky top-16 h-[calc(100vh-64px)] overflow-y-auto">
+        <aside className={cn(
+          "absolute md:relative z-50 flex flex-col bg-white border-r border-stone-200 h-full overflow-y-auto transition-all duration-300 ease-in-out w-72 shrink-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full md:-ml-72"
+        )}>
           <div className="p-6 space-y-8">
             {/* Geral Section */}
             <div>
@@ -477,7 +516,7 @@ export default function App() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto p-12">
+        <main className="flex-1 overflow-y-auto p-6 md:p-12 w-full">
           <div className="max-w-5xl mx-auto">
             {view === 'admin' ? (
               <AdminPanel 
