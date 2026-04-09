@@ -58,6 +58,27 @@ interface Checkin {
   status: 'active' | 'completed';
 }
 
+const ULYSSES_LOCATION = {
+  lat: -15.7941,
+  lng: -47.8922,
+  radius: 300 // metros de tolerância
+};
+
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371e3; // raio da Terra em metros
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) *
+    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // metros
+}
+
 export function CheckinSystem({ 
   user, 
   isAdmin,
@@ -94,33 +115,93 @@ export function CheckinSystem({
   const todayStr = format(new Date(), 'yyyy-MM-dd');
   const todayCheckin = checkins.find(c => c.date === todayStr);
 
+  const [checkinError, setCheckinError] = useState<string | null>(null);
+  const [checkinSuccess, setCheckinSuccess] = useState<string | null>(null);
+
+  const validateLocation = (): Promise<{ lat: number; lng: number }> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject('Seu navegador não suporta geolocalização.');
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const distance = calculateDistance(
+            latitude,
+            longitude,
+            ULYSSES_LOCATION.lat,
+            ULYSSES_LOCATION.lng
+          );
+
+          if (distance > ULYSSES_LOCATION.radius) {
+            reject(`Você está fora do perímetro permitido (${Math.round(distance)}m do local).`);
+          } else {
+            resolve({ lat: latitude, lng: longitude });
+          }
+        },
+        (error) => {
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              reject('Permissão de localização negada pelo usuário.');
+              break;
+            case error.POSITION_UNAVAILABLE:
+              reject('Informações de localização indisponíveis.');
+              break;
+            case error.TIMEOUT:
+              reject('Tempo limite de localização esgotado.');
+              break;
+            default:
+              reject('Erro desconhecido ao obter localização.');
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+  };
+
   const handleCheckin = async () => {
     if (todayCheckin) return;
+    setCheckinError(null);
+    setCheckinSuccess(null);
 
     try {
+      await validateLocation();
+      
       await addDoc(collection(db, 'checkins'), {
         userId: user.uid,
         date: todayStr,
         checkinTime: serverTimestamp(),
         status: 'active'
       });
-      setActiveTab('overview');
-    } catch (error) {
+      
+      setCheckinSuccess('Check-in realizado com sucesso');
+      setTimeout(() => setActiveTab('overview'), 2000);
+    } catch (error: any) {
       console.error('Error during check-in:', error);
+      setCheckinError(typeof error === 'string' ? error : 'Erro ao realizar o check-in');
     }
   };
 
   const handleCheckout = async () => {
     if (!todayCheckin || todayCheckin.status === 'completed') return;
+    setCheckinError(null);
+    setCheckinSuccess(null);
 
     try {
+      await validateLocation();
+
       await updateDoc(doc(db, 'checkins', todayCheckin.id), {
         checkoutTime: serverTimestamp(),
         status: 'completed'
       });
-      setActiveTab('overview');
-    } catch (error) {
+      
+      setCheckinSuccess('Check-out realizado com sucesso');
+      setTimeout(() => setActiveTab('overview'), 2000);
+    } catch (error: any) {
       console.error('Error during check-out:', error);
+      setCheckinError(typeof error === 'string' ? error : 'Erro ao realizar o check-out');
     }
   };
 
@@ -210,6 +291,24 @@ export function CheckinSystem({
               </div>
             </div>
             
+            {checkinSuccess && (
+              <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-100 animate-in fade-in zoom-in-95 duration-300">
+                <p className="text-emerald-700 font-bold flex items-center justify-center gap-2">
+                  <CheckCircle2 size={20} />
+                  {checkinSuccess}
+                </p>
+              </div>
+            )}
+
+            {checkinError && (
+              <div className="p-6 bg-rose-50 rounded-3xl border border-rose-100 animate-in fade-in shake duration-300">
+                <p className="text-rose-700 font-bold mb-1 flex items-center justify-center gap-2">
+                  Erro ao realizar o check-in
+                </p>
+                <p className="text-rose-500 text-sm">{checkinError}</p>
+              </div>
+            )}
+            
             {todayCheckin ? (
               <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-100">
                 <p className="text-emerald-700 font-bold flex items-center justify-center gap-2">
@@ -218,13 +317,15 @@ export function CheckinSystem({
                 </p>
               </div>
             ) : (
-              <button 
-                onClick={handleCheckin}
-                className="w-full bg-stone-900 text-white py-6 rounded-3xl font-bold hover:bg-stone-800 transition-all shadow-xl shadow-stone-900/20 flex items-center justify-center gap-3"
-              >
-                <LogIn size={24} />
-                Realizar Check-in
-              </button>
+              !checkinSuccess && (
+                <button 
+                  onClick={handleCheckin}
+                  className="w-full bg-stone-900 text-white py-6 rounded-3xl font-bold hover:bg-stone-800 transition-all shadow-xl shadow-stone-900/20 flex items-center justify-center gap-3"
+                >
+                  <LogIn size={24} />
+                  Realizar Check-in
+                </button>
+              )
             )}
           </div>
         )}
@@ -245,6 +346,24 @@ export function CheckinSystem({
               </div>
             </div>
 
+            {checkinSuccess && (
+              <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-100 animate-in fade-in zoom-in-95 duration-300">
+                <p className="text-emerald-700 font-bold flex items-center justify-center gap-2">
+                  <CheckCircle2 size={20} />
+                  {checkinSuccess}
+                </p>
+              </div>
+            )}
+
+            {checkinError && (
+              <div className="p-6 bg-rose-50 rounded-3xl border border-rose-100 animate-in fade-in shake duration-300">
+                <p className="text-rose-700 font-bold mb-1 flex items-center justify-center gap-2">
+                  Erro ao realizar o check-out
+                </p>
+                <p className="text-rose-500 text-sm">{checkinError}</p>
+              </div>
+            )}
+
             {!todayCheckin ? (
               <div className="p-6 bg-stone-50 rounded-3xl border border-stone-100">
                 <p className="text-stone-500 italic">Você ainda não realizou check-in hoje.</p>
@@ -257,13 +376,15 @@ export function CheckinSystem({
                 </p>
               </div>
             ) : (
-              <button 
-                onClick={handleCheckout}
-                className="w-full bg-stone-900 text-white py-6 rounded-3xl font-bold hover:bg-stone-800 transition-all shadow-xl shadow-stone-900/20 flex items-center justify-center gap-3"
-              >
-                <LogOut size={24} />
-                Realizar Check-out
-              </button>
+              !checkinSuccess && (
+                <button 
+                  onClick={handleCheckout}
+                  className="w-full bg-stone-900 text-white py-6 rounded-3xl font-bold hover:bg-stone-800 transition-all shadow-xl shadow-stone-900/20 flex items-center justify-center gap-3"
+                >
+                  <LogOut size={24} />
+                  Realizar Check-out
+                </button>
+              )
             )}
           </div>
         )}
