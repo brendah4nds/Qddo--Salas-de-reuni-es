@@ -4,6 +4,7 @@ import {
   deleteDoc, 
   doc, 
   setDoc,
+  updateDoc,
   onSnapshot,
   query,
   orderBy
@@ -26,9 +27,15 @@ import {
   CalendarDays,
   Newspaper,
   ShieldCheck,
-  MessageSquare
+  MessageSquare,
+  Pencil,
+  Paperclip,
+  ExternalLink,
+  XCircle,
+  FileText
 } from 'lucide-react';
-import { db, auth, handleFirestoreError, OperationType } from '../firebase';
+import { db, auth, storage, handleFirestoreError, OperationType } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Room, Booking, Challenge } from '../types';
 import { ConfirmationModal } from './ConfirmationModal';
 import { addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
@@ -71,9 +78,16 @@ export function AdminPanel({
   const [newNews, setNewNews] = useState({
     title: '',
     content: '',
-    category: 'aviso' as 'aviso' | 'info' | 'evento' | 'noticia',
-    eventDate: ''
+    category: 'aviso' as 'aviso' | 'info' | 'evento' | 'noticia' | 'regras' | 'comunicacao',
+    eventDate: '',
+    startTime: '',
+    endTime: '',
+    attachmentUrl: '',
+    attachmentName: '',
+    attachmentType: '' as 'pdf' | 'png' | ''
   });
+  const [editingNewsId, setEditingNewsId] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [isAddingNews, setIsAddingNews] = useState(false);
   const [modalConfig, setModalConfig] = useState<{
     isOpen: boolean;
@@ -200,15 +214,85 @@ export function AdminPanel({
     if (!newNews.title || !newNews.content) return;
 
     try {
-      await addDoc(collection(db, 'news'), {
+      const newsData = {
         ...newNews,
-        createdAt: serverTimestamp(),
-        eventDate: newNews.category === 'evento' ? Timestamp.fromDate(new Date(newNews.eventDate)) : null
+        updatedAt: serverTimestamp(),
+        eventDate: newNews.eventDate ? Timestamp.fromDate(new Date(newNews.eventDate + 'T00:00:00')) : null
+      };
+
+      if (editingNewsId) {
+        await updateDoc(doc(db, 'news', editingNewsId), newsData);
+      } else {
+        await addDoc(collection(db, 'news'), {
+          ...newsData,
+          createdAt: serverTimestamp()
+        });
+      }
+
+      setNewNews({ 
+        title: '', 
+        content: '', 
+        category: 'aviso', 
+        eventDate: '', 
+        startTime: '', 
+        endTime: '',
+        attachmentUrl: '',
+        attachmentName: '',
+        attachmentType: ''
       });
-      setNewNews({ title: '', content: '', category: 'aviso', eventDate: '' });
+      setEditingNewsId(null);
       setIsAddingNews(false);
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleEditNews = (item: any) => {
+    setNewNews({
+      title: item.title || '',
+      content: item.content || '',
+      category: item.category || 'aviso',
+      eventDate: item.eventDate?.toDate ? item.eventDate.toDate().toISOString().split('T')[0] : (item.eventDate || ''),
+      startTime: item.startTime || '',
+      endTime: item.endTime || '',
+      attachmentUrl: item.attachmentUrl || '',
+      attachmentName: item.attachmentName || '',
+      attachmentType: item.attachmentType || ''
+    });
+    setEditingNewsId(item.id);
+    setIsAddingNews(true);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file type
+    const isPDF = file.type === 'application/pdf';
+    const isImage = file.type.startsWith('image/');
+
+    if (!isPDF && !isImage) {
+      alert('Apenas arquivos PDF e Imagens são permitidos.');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const storageRef = ref(storage, `news-attachments/${Date.now()}-${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(snapshot.ref);
+      
+      setNewNews(prev => ({
+        ...prev,
+        attachmentUrl: url,
+        attachmentName: file.name,
+        attachmentType: isPDF ? 'pdf' : 'png' // simplified type tracking
+      }));
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('Erro ao enviar arquivo.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -486,6 +570,24 @@ export function AdminPanel({
 
           {isAddingNews && (
             <div className="bg-white rounded-[40px] p-12 border border-stone-200 shadow-sm animate-in zoom-in-95 duration-300">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-2xl font-serif italic">{editingNewsId ? 'Editar Notícia' : 'Nova Notícia'}</h3>
+                {editingNewsId && (
+                  <button 
+                    onClick={() => {
+                      setEditingNewsId(null);
+                      setNewNews({ 
+                        title: '', content: '', category: 'aviso', eventDate: '', startTime: '', endTime: '',
+                        attachmentUrl: '', attachmentName: '', attachmentType: ''
+                      });
+                      setIsAddingNews(false);
+                    }}
+                    className="text-stone-400 hover:text-stone-900 transition-colors"
+                  >
+                    <XCircle size={24} />
+                  </button>
+                )}
+              </div>
               <form onSubmit={handleCreateNews} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -515,18 +617,35 @@ export function AdminPanel({
                   </div>
                 </div>
 
-                {newNews.category === 'evento' && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Data do Evento</label>
+                    <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Data</label>
                     <input 
-                      required
                       type="date" 
                       value={newNews.eventDate}
                       onChange={e => setNewNews({ ...newNews, eventDate: e.target.value })}
                       className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:border-stone-900 transition-all"
                     />
                   </div>
-                )}
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Início</label>
+                    <input 
+                      type="time" 
+                      value={newNews.startTime}
+                      onChange={e => setNewNews({ ...newNews, startTime: e.target.value })}
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:border-stone-900 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Término</label>
+                    <input 
+                      type="time" 
+                      value={newNews.endTime}
+                      onChange={e => setNewNews({ ...newNews, endTime: e.target.value })}
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:border-stone-900 transition-all"
+                    />
+                  </div>
+                </div>
 
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Conteúdo</label>
@@ -539,6 +658,44 @@ export function AdminPanel({
                   />
                 </div>
 
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Anexo (PDF ou Imagem)</label>
+                  <div className="flex items-center gap-4">
+                    <label className={cn(
+                      "flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-stone-50 border border-dashed border-stone-200 rounded-2xl cursor-pointer hover:bg-stone-100 transition-all",
+                      isUploading && "opacity-50 cursor-not-allowed"
+                    )}>
+                      <Paperclip size={20} className="text-stone-400" />
+                      <span className="text-sm font-medium text-stone-500">
+                        {isUploading ? 'Enviando...' : newNews.attachmentName ? 'Alterar arquivo' : 'Selecionar arquivo'}
+                      </span>
+                      <input 
+                        type="file" 
+                        accept="image/*,.pdf"
+                        onChange={handleFileUpload}
+                        disabled={isUploading}
+                        className="hidden"
+                      />
+                    </label>
+                    {newNews.attachmentUrl && (
+                      <div className="flex items-center gap-2 p-4 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-100">
+                        {newNews.attachmentType === 'pdf' ? <FileText size={20} /> : <Newspaper size={20} />}
+                        <div className="flex flex-col">
+                          <span className="text-[10px] uppercase font-bold tracking-widest leading-none">Anexo Pronto</span>
+                          <span className="text-xs font-medium truncate max-w-[150px]">{newNews.attachmentName}</span>
+                        </div>
+                        <button 
+                          type="button"
+                          onClick={() => setNewNews(prev => ({ ...prev, attachmentUrl: '', attachmentName: '', attachmentType: '' }))}
+                          className="p-1 hover:bg-emerald-100 rounded-lg transition-colors"
+                        >
+                          <XCircle size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="flex gap-4">
                   <button 
                     type="button"
@@ -549,9 +706,10 @@ export function AdminPanel({
                   </button>
                   <button 
                     type="submit"
-                    className="flex-1 bg-stone-900 text-white py-4 rounded-2xl font-bold hover:bg-stone-800 transition-all shadow-lg shadow-stone-900/20"
+                    disabled={isUploading}
+                    className="flex-1 bg-stone-900 text-white py-4 rounded-2xl font-bold hover:bg-stone-800 transition-all shadow-lg shadow-stone-900/20 disabled:opacity-50"
                   >
-                    Publicar
+                    {editingNewsId ? 'Salvar Alterações' : 'Publicar'}
                   </button>
                 </div>
               </form>
@@ -601,13 +759,22 @@ export function AdminPanel({
                         </div>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <button 
-                          onClick={() => handleDeleteNews(item.id)}
-                          className="inline-flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-xl transition-all font-bold text-xs"
-                        >
-                          <Trash2 size={14} />
-                          <span>Excluir</span>
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <button 
+                            onClick={() => handleEditNews(item)}
+                            className="inline-flex items-center gap-2 px-4 py-2 text-stone-600 hover:bg-stone-50 rounded-xl transition-all font-bold text-xs"
+                          >
+                            <Pencil size={14} />
+                            <span>Editar</span>
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteNews(item.id)}
+                            className="inline-flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-xl transition-all font-bold text-xs"
+                          >
+                            <Trash2 size={14} />
+                            <span>Excluir</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

@@ -55,8 +55,12 @@ import {
   AlertTriangle,
   Trophy,
   CalendarDays,
+  Clock,
   X,
   Plus,
+  Paperclip,
+  ExternalLink,
+  FileText,
   Menu
 } from 'lucide-react';
 import { db, auth, handleFirestoreError, OperationType } from './firebase';
@@ -585,32 +589,62 @@ export default function App() {
                   <p className="text-stone-500 font-serif italic">Fique por dentro das novidades da comunidade QDDO.</p>
                 </div>
                 <div className="grid grid-cols-1 gap-8">
-                  {[
-                    {
-                      title: "Novo Espaço QDDO Inaugurado",
-                      date: "19 de Março, 2026",
-                      excerpt: "Estamos felizes em anunciar a abertura da nossa nova sala de reuniões executiva.",
-                      category: "Comunidade"
-                    },
-                    {
-                      title: "Workshop de Pitch para Founders",
-                      date: "22 de Março, 2026",
-                      excerpt: "Participe do nosso próximo workshop focado em captação de investimento.",
-                      category: "Eventos"
-                    }
-                  ].map((item, i) => (
-                    <div key={i} className="bg-white rounded-[40px] p-10 border border-stone-200 shadow-sm hover:shadow-xl transition-all group">
+                  {newsItems
+                    .filter(item => item.category === 'evento')
+                    .sort((a, b) => {
+                      const dateA = a.eventDate?.toDate ? a.eventDate.toDate() : new Date(a.eventDate + 'T00:00:00');
+                      const dateB = b.eventDate?.toDate ? b.eventDate.toDate() : new Date(b.eventDate + 'T00:00:00');
+                      return dateB.getTime() - dateA.getTime();
+                    })
+                    .map((item, i) => (
+                    <div key={item.id || i} className="bg-white rounded-[40px] p-10 border border-stone-200 shadow-sm hover:shadow-xl transition-all group">
                       <div className="flex items-center gap-4 mb-4">
-                        <span className="text-[10px] uppercase tracking-widest font-bold bg-stone-100 px-3 py-1 rounded-full text-stone-500">{item.category}</span>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400">{item.date}</span>
+                        <span className="text-[10px] uppercase tracking-widest font-bold bg-stone-100 px-3 py-1 rounded-full text-stone-500">Evento</span>
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400">
+                          {item.eventDate ? new Date(item.eventDate + 'T00:00:00').toLocaleDateString('pt-BR') : 
+                           item.createdAt?.seconds ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : ''}
+                        </span>
+                        {(item.startTime || item.endTime) && (
+                          <span className="text-[10px] uppercase tracking-widest font-bold text-amber-500 flex items-center gap-2">
+                            <Clock size={12} />
+                            <span>Início: {item.startTime || '--:--'}</span>
+                            {item.endTime && <span>Término: {item.endTime}</span>}
+                          </span>
+                        )}
                       </div>
-                      <h3 className="text-2xl font-serif italic mb-4 group-hover:text-stone-600 transition-colors">{item.title}</h3>
-                      <p className="text-stone-500 leading-relaxed mb-6">{item.excerpt}</p>
-                      <button className="text-xs font-bold uppercase tracking-widest text-stone-900 flex items-center gap-2 group-hover:gap-3 transition-all">
-                        Ler mais <ArrowRight size={16} />
-                      </button>
+                      <h3 className="text-2xl font-serif italic mb-4 group-hover:text-stone-600 transition-colors uppercase tracking-tight">{item.title}</h3>
+                      <p className="text-stone-500 leading-relaxed mb-6 whitespace-pre-wrap">{item.content}</p>
+                      
+                      <div className="flex flex-wrap gap-4 items-center justify-between">
+                        <button 
+                          onClick={() => {
+                            setActiveGeneralCategory('evento');
+                          }}
+                          className="text-xs font-bold uppercase tracking-widest text-stone-900 flex items-center gap-2 group-hover:gap-3 transition-all"
+                        >
+                          Detalhes do Evento <ArrowRight size={16} />
+                        </button>
+
+                        {item.attachmentUrl && (
+                          <a 
+                            href={item.attachmentUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold text-stone-600 hover:bg-stone-100 transition-all"
+                          >
+                            <Paperclip size={14} />
+                            {item.attachmentName || 'Ver Anexo'}
+                            <ExternalLink size={14} />
+                          </a>
+                        )}
+                      </div>
                     </div>
                   ))}
+                  {newsItems.filter(item => item.category === 'evento').length === 0 && (
+                    <div className="text-center py-20 bg-white rounded-[40px] border border-dashed border-stone-200">
+                      <p className="text-stone-400 italic">Nenhum evento publicado no momento.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             ) : view === 'quads' ? (
@@ -709,8 +743,8 @@ export default function App() {
                       const weekEnd = endOfWeek(now, { weekStartsOn: 0 });
 
                       const relevantEvents = newsItems.filter(item => {
-                        if (item.category !== 'evento') return false;
-                        const eventDate = item.eventDate?.toDate ? item.eventDate.toDate() : new Date(item.eventDate);
+                        if (!item.eventDate) return false;
+                        const eventDate = item.eventDate?.toDate ? item.eventDate.toDate() : new Date(item.eventDate + 'T00:00:00');
                         return isWithinInterval(eventDate, { start: weekStart, end: weekEnd });
                       }).sort((a, b) => {
                         const dateA = a.eventDate?.toDate ? a.eventDate.toDate() : new Date(a.eventDate);
@@ -756,22 +790,32 @@ export default function App() {
                                     <div className="flex items-start justify-between gap-4">
                                       <div>
                                         <div className="flex items-center gap-2 mb-2">
-                                          <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold uppercase rounded-full">
-                                            {format(event.eventDate?.toDate ? event.eventDate.toDate() : new Date(event.eventDate), 'EEEE', { locale: ptBR })}
-                                          </span>
-                                          <span className="text-stone-400 text-[10px] font-bold uppercase">
-                                            {format(event.eventDate?.toDate ? event.eventDate.toDate() : new Date(event.eventDate), 'HH:mm')}
-                                          </span>
+                                          <span className={cn(
+                                             "px-2 py-0.5 text-[10px] font-bold uppercase rounded-full",
+                                             event.category === 'evento' ? "bg-amber-100 text-amber-700" :
+                                             event.category === 'aviso' ? "bg-rose-100 text-rose-700" :
+                                             event.category === 'info' ? "bg-blue-100 text-blue-700" :
+                                             "bg-stone-100 text-stone-700"
+                                           )}>
+                                             {format(event.eventDate?.toDate ? event.eventDate.toDate() : new Date(event.eventDate + 'T00:00:00'), 'EEEE', { locale: ptBR })}
+                                           </span>
+                                           {(event.startTime || event.endTime) && (
+                                             <span className="text-stone-400 text-[10px] font-bold uppercase flex items-center gap-2">
+                                               <Clock size={10} />
+                                               <span>Início: {event.startTime || '--:--'}</span>
+                                               {event.endTime && <span>Término: {event.endTime}</span>}
+                                             </span>
+                                           )}
                                         </div>
                                         <h5 className="font-bold text-stone-900 mb-1 group-hover:text-amber-600 transition-colors">{event.title}</h5>
                                         <p className="text-stone-500 text-xs line-clamp-2">{event.content}</p>
                                       </div>
                                       <div className="text-right shrink-0">
                                         <div className="text-2xl font-serif italic text-stone-300 group-hover:text-amber-200 transition-colors">
-                                          {format(event.eventDate?.toDate ? event.eventDate.toDate() : new Date(event.eventDate), 'dd')}
+                                          {format(event.eventDate?.toDate ? event.eventDate.toDate() : new Date(event.eventDate + 'T00:00:00'), 'dd')}
                                         </div>
                                         <div className="text-[10px] font-bold uppercase text-stone-400">
-                                          {format(event.eventDate?.toDate ? event.eventDate.toDate() : new Date(event.eventDate), 'MMM', { locale: ptBR })}
+                                          {format(event.eventDate?.toDate ? event.eventDate.toDate() : new Date(event.eventDate + 'T00:00:00'), 'MMM', { locale: ptBR })}
                                         </div>
                                       </div>
                                     </div>
@@ -960,12 +1004,40 @@ export default function App() {
                                   </span>
                                 </div>
                                 <p className="text-stone-600 text-sm leading-relaxed whitespace-pre-wrap">{item.content}</p>
-                                {item.eventDate && (
-                                  <div className="mt-4 flex items-center gap-2 text-emerald-600 font-bold text-xs">
-                                    <CalendarDays size={14} />
-                                    <span>Data do Evento: {new Date(item.eventDate + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
-                                  </div>
-                                )}
+                                 {item.eventDate && (
+                                   <div className="mt-4 flex flex-wrap items-center gap-4">
+                                     <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs">
+                                       <CalendarDays size={14} />
+                                       <span>Data: {new Date(item.eventDate + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
+                                     </div>
+                                     {(item.startTime || item.endTime) && (
+                                       <div className="flex flex-wrap items-center gap-4 text-amber-600 font-bold text-xs uppercase tracking-widest">
+                                         <div className="flex items-center gap-2">
+                                           <Clock size={14} />
+                                           <span>Início: {item.startTime || '--:--'}</span>
+                                         </div>
+                                         {item.endTime && (
+                                           <div className="flex items-center gap-2">
+                                             <Clock size={14} />
+                                             <span>Término: {item.endTime}</span>
+                                           </div>
+                                         )}
+                                       </div>
+                                     )}
+                                     {item.attachmentUrl && (
+                                       <a 
+                                         href={item.attachmentUrl}
+                                         target="_blank"
+                                         rel="noopener noreferrer"
+                                         className="flex items-center gap-2 text-stone-900 font-bold text-xs hover:underline decoration-stone-900/30"
+                                       >
+                                         <Paperclip size={14} />
+                                         <span>Anexo: {item.attachmentName || 'Ver Arquivo'}</span>
+                                         <ExternalLink size={14} />
+                                       </a>
+                                     )}
+                                   </div>
+                                 )}
                               </div>
                             ))
                         ) : (
