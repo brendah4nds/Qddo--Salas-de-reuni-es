@@ -775,7 +775,7 @@ export default function App() {
                         scoresMap[c.userId] = (scoresMap[c.userId] || 0) + 10;
                       });
 
-                      const ranking = Object.entries(scoresMap)
+                      const fullRanking = Object.entries(scoresMap)
                         .map(([userId, score]) => {
                           const founder = allFounders.find(f => f.id === userId);
                           return {
@@ -785,8 +785,10 @@ export default function App() {
                             username: founder?.username || userId.slice(0, 6)
                           };
                         })
-                        .sort((a, b) => b.score - a.score)
-                        .slice(0, 5);
+                        .sort((a, b) => b.score - a.score);
+
+                      const ranking = fullRanking.slice(0, 5);
+                      const userRankPosition = fullRanking.findIndex(r => r.userId === user?.uid) + 1;
 
                       return (
                         <div className="flex flex-col lg:flex-row gap-6 h-full min-h-[400px]">
@@ -930,6 +932,9 @@ export default function App() {
                               <span className="text-[10px] uppercase tracking-widest font-bold text-emerald-100 mb-2 relative z-10">Seu Score QDDO</span>
                               <div className="text-6xl font-serif italic mb-1 relative z-10">{userScore}</div>
                               <span className="text-xs font-bold text-emerald-100 relative z-10">pontos este mês</span>
+                              {userRankPosition > 0 && (
+                                <span className="text-[11px] text-emerald-200 relative z-10 mt-1">#{userRankPosition}º no ranking</span>
+                              )}
                               
                               <div className="mt-6 pt-6 border-t border-emerald-400/30 w-full relative z-10">
                                 <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-emerald-100">
