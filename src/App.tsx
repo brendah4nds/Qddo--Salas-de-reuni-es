@@ -615,10 +615,6 @@ export default function App() {
               <Chat user={user} />
             ) : view === 'news' ? (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="mb-12">
-                  <h2 className="text-4xl font-serif italic mb-2">Notícias</h2>
-                  <p className="text-stone-500 font-serif italic">Fique por dentro das novidades da comunidade QDDO.</p>
-                </div>
                 <div className="grid grid-cols-1 gap-8">
                   {newsItems
                     .filter(item => item.category === 'evento')
@@ -680,10 +676,6 @@ export default function App() {
               </div>
             ) : view === 'quads' ? (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="mb-12">
-                  <h2 className="text-4xl font-serif italic mb-2">Quads</h2>
-                  <p className="text-stone-500 font-serif italic">Consulte as ações e suas respectivas pontuações na comunidade QDDO.</p>
-                </div>
                 
                 <div className="bg-white rounded-[40px] border border-stone-200 shadow-sm overflow-hidden">
                   <div className="overflow-x-auto">
