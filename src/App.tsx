@@ -125,6 +125,7 @@ export default function App() {
   const [allChallenges, setAllChallenges] = useState<Challenge[]>([]);
   const [newsItems, setNewsItems] = useState<any[]>([]);
   const [userCheckins, setUserCheckins] = useState<any[]>([]);
+  const [allCheckins, setAllCheckins] = useState<any[]>([]);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
   const handleAcceptTerms = async () => {
@@ -218,13 +219,10 @@ export default function App() {
       }
     }, (err) => handleFirestoreError(err, OperationType.GET, 'settings/global'));
 
-    let foundersUnsubscribe = () => {};
-    if (user?.email === ADMIN_EMAIL || founderData?.role === 'admin') {
-      foundersUnsubscribe = onSnapshot(collection(db, 'founders'), (snapshot) => {
-        const foundersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setAllFounders(foundersData);
-      }, (err) => handleFirestoreError(err, OperationType.LIST, 'founders'));
-    }
+    const foundersUnsubscribe = onSnapshot(collection(db, 'founders'), (snapshot) => {
+      const foundersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setAllFounders(foundersData);
+    }, (err) => handleFirestoreError(err, OperationType.LIST, 'founders'));
 
     const challengesUnsubscribe = onSnapshot(collection(db, 'challenges'), (snapshot) => {
       const challengesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Challenge));
@@ -238,10 +236,11 @@ export default function App() {
 
     let checkinsUnsubscribe = () => {};
     if (user) {
-      const q = query(collection(db, 'checkins'), where('userId', '==', user.uid));
+      const q = collection(db, 'checkins');
       checkinsUnsubscribe = onSnapshot(q, (snapshot) => {
         const checkinsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setUserCheckins(checkinsData);
+        setAllCheckins(checkinsData);
+        setUserCheckins(checkinsData.filter((c: any) => c.userId === user.uid));
       }, (err) => handleFirestoreError(err, OperationType.LIST, 'checkins'));
     }
 
@@ -760,75 +759,99 @@ export default function App() {
                       const currentMonthStart = startOfMonth(now);
                       const currentMonthEnd = endOfMonth(now);
                       const currentMonthCheckins = userCheckins.filter(c => {
-                        const d = c.checkinTime?.toDate ? c.checkinTime.toDate() : new Date(c.checkinTime);
+                        const d = c.checkinTime?.toDate ? c.checkinTime.toDate() : (c.checkinTime?.seconds ? new Date(c.checkinTime.seconds * 1000) : new Date(c.checkinTime));
                         return isWithinInterval(d, { start: currentMonthStart, end: currentMonthEnd });
                       }).length;
                       const userScore = currentMonthCheckins * 10;
 
+                      // Ranking Top 5 calculation
+                      const allCurrentMonthCheckins = allCheckins.filter(c => {
+                        const d = c.checkinTime?.toDate ? c.checkinTime.toDate() : (c.checkinTime?.seconds ? new Date(c.checkinTime.seconds * 1000) : new Date(c.checkinTime));
+                        return isWithinInterval(d, { start: currentMonthStart, end: currentMonthEnd });
+                      });
+
+                      const scoresMap: Record<string, number> = {};
+                      allCurrentMonthCheckins.forEach(c => {
+                        scoresMap[c.userId] = (scoresMap[c.userId] || 0) + 10;
+                      });
+
+                      const ranking = Object.entries(scoresMap)
+                        .map(([userId, score]) => {
+                          const founder = allFounders.find(f => f.id === userId);
+                          return {
+                            userId,
+                            score,
+                            name: founder?.name || 'Founder',
+                            username: founder?.username || userId.slice(0, 6)
+                          };
+                        })
+                        .sort((a, b) => b.score - a.score)
+                        .slice(0, 5);
+
                       return (
                         <div className="flex flex-col lg:flex-row gap-6 h-full min-h-[400px]">
-                          {/* Part 1: Eventos (66%) */}
-                          <div className="lg:w-[66%] bg-white rounded-[40px] p-8 border border-stone-200 shadow-sm flex flex-col">
-                            <div className="flex items-center justify-between mb-6">
-                              <h4 className="text-2xl font-serif italic text-stone-900 flex items-center gap-2">
-                                <CalendarDays className="text-amber-500" size={24} />
-                                Eventos da Semana
-                              </h4>
-                              <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
-                                {format(weekStart, 'dd/MM')} - {format(weekEnd, 'dd/MM')}
-                              </span>
-                            </div>
-                            
-                            <div className="flex-1 space-y-4 overflow-y-auto pr-2 custom-scrollbar">
-                              {relevantEvents.length === 0 ? (
-                                <div className="h-full flex flex-col items-center justify-center text-center p-8 bg-stone-50 rounded-3xl border border-dashed border-stone-200">
-                                  <p className="text-stone-400 italic">Nenhum evento programado para esta semana.</p>
-                                </div>
-                              ) : (
-                                relevantEvents.map((event, idx) => (
-                                  <div key={event.id || idx} className="p-6 bg-stone-50 rounded-3xl border border-stone-100 hover:border-stone-300 transition-all group">
-                                    <div className="flex items-start justify-between gap-4">
-                                      <div>
-                                        <div className="flex items-center gap-2 mb-2">
-                                          <span className={cn(
-                                             "px-2 py-0.5 text-[10px] font-bold uppercase rounded-full",
-                                             event.category === 'evento' ? "bg-amber-100 text-amber-700" :
-                                             event.category === 'aviso' ? "bg-rose-100 text-rose-700" :
-                                             event.category === 'info' ? "bg-blue-100 text-blue-700" :
-                                             "bg-stone-100 text-stone-700"
-                                           )}>
-                                             {format(event.eventDate?.toDate ? event.eventDate.toDate() : new Date(event.eventDate + 'T00:00:00'), 'EEEE', { locale: ptBR })}
-                                           </span>
-                                           {(event.startTime || event.endTime) && (
-                                             <span className="text-stone-400 text-[10px] font-bold uppercase flex items-center gap-2">
-                                               <Clock size={10} />
-                                               <span>Início: {event.startTime || '--:--'}</span>
-                                               {event.endTime && <span>Término: {event.endTime}</span>}
-                                             </span>
-                                           )}
+                          {/* Part 1: Eventos & Desafios (66%) */}
+                          <div className="lg:w-[66%] flex flex-col gap-6">
+                            {/* Eventos da Semana */}
+                            <div className="bg-white rounded-[40px] p-8 border border-stone-200 shadow-sm flex flex-col">
+                              <div className="flex items-center justify-between mb-6">
+                                <h4 className="text-2xl font-serif italic text-stone-900 flex items-center gap-2">
+                                  <CalendarDays className="text-amber-500" size={24} />
+                                  Eventos da Semana
+                                </h4>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
+                                  {format(weekStart, 'dd/MM')} - {format(weekEnd, 'dd/MM')}
+                                </span>
+                              </div>
+                              
+                              <div className="flex-1 space-y-4 overflow-y-auto pr-2 custom-scrollbar">
+                                {relevantEvents.length === 0 ? (
+                                  <div className="h-full flex flex-col items-center justify-center text-center p-8 bg-stone-50 rounded-3xl border border-dashed border-stone-200">
+                                    <p className="text-stone-400 italic">Nenhum evento programado para esta semana.</p>
+                                  </div>
+                                ) : (
+                                  relevantEvents.map((event, idx) => (
+                                    <div key={event.id || idx} className="p-6 bg-stone-50 rounded-3xl border border-stone-100 hover:border-stone-300 transition-all group">
+                                      <div className="flex items-start justify-between gap-4">
+                                        <div>
+                                          <div className="flex items-center gap-2 mb-2">
+                                            <span className={cn(
+                                              "px-2 py-0.5 text-[10px] font-bold uppercase rounded-full",
+                                              event.category === 'evento' ? "bg-amber-100 text-amber-700" :
+                                              event.category === 'aviso' ? "bg-rose-100 text-rose-700" :
+                                              event.category === 'info' ? "bg-blue-100 text-blue-700" :
+                                              "bg-stone-100 text-stone-700"
+                                            )}>
+                                              {format(event.eventDate?.toDate ? event.eventDate.toDate() : new Date(event.eventDate + 'T00:00:00'), 'EEEE', { locale: ptBR })}
+                                            </span>
+                                            {(event.startTime || event.endTime) && (
+                                              <span className="text-stone-400 text-[10px] font-bold uppercase flex items-center gap-2">
+                                                <Clock size={10} />
+                                                <span>Início: {event.startTime || '--:--'}</span>
+                                                {event.endTime && <span>Término: {event.endTime}</span>}
+                                              </span>
+                                            )}
+                                          </div>
+                                          <h5 className="font-bold text-stone-900 mb-1 group-hover:text-amber-600 transition-colors">{event.title}</h5>
+                                          <p className="text-stone-500 text-xs line-clamp-2">{event.content}</p>
                                         </div>
-                                        <h5 className="font-bold text-stone-900 mb-1 group-hover:text-amber-600 transition-colors">{event.title}</h5>
-                                        <p className="text-stone-500 text-xs line-clamp-2">{event.content}</p>
-                                      </div>
-                                      <div className="text-right shrink-0">
-                                        <div className="text-2xl font-serif italic text-stone-300 group-hover:text-amber-200 transition-colors">
-                                          {format(event.eventDate?.toDate ? event.eventDate.toDate() : new Date(event.eventDate + 'T00:00:00'), 'dd')}
-                                        </div>
-                                        <div className="text-[10px] font-bold uppercase text-stone-400">
-                                          {format(event.eventDate?.toDate ? event.eventDate.toDate() : new Date(event.eventDate + 'T00:00:00'), 'MMM', { locale: ptBR })}
+                                        <div className="text-right shrink-0">
+                                          <div className="text-2xl font-serif italic text-stone-300 group-hover:text-amber-200 transition-colors">
+                                            {format(event.eventDate?.toDate ? event.eventDate.toDate() : new Date(event.eventDate + 'T00:00:00'), 'dd')}
+                                          </div>
+                                          <div className="text-[10px] font-bold uppercase text-stone-400">
+                                            {format(event.eventDate?.toDate ? event.eventDate.toDate() : new Date(event.eventDate + 'T00:00:00'), 'MMM', { locale: ptBR })}
+                                          </div>
                                         </div>
                                       </div>
                                     </div>
-                                  </div>
-                                ))
-                              )}
+                                  ))
+                                )}
+                              </div>
                             </div>
-                          </div>
 
-                          {/* Part 2: Desafios & Score (33%) */}
-                          <div className="lg:w-[33%] flex flex-col gap-6">
-                            {/* Top: Desafios Públicos */}
-                            <div className="flex-1 bg-stone-900 rounded-[40px] p-8 text-white shadow-xl shadow-stone-900/20 flex flex-col">
+                            {/* Desafios Públicos (Moved here) */}
+                            <div className="bg-stone-900 rounded-[40px] p-8 text-white shadow-xl shadow-stone-900/20 flex flex-col">
                               <div className="flex items-center gap-2 mb-6">
                                 <Trophy className="text-amber-400" size={20} />
                                 <h4 className="text-lg font-serif italic">Desafios Públicos</h4>
@@ -859,8 +882,47 @@ export default function App() {
                                 )}
                               </div>
                             </div>
+                          </div>
 
-                            {/* Bottom: User Score */}
+                          {/* Part 2: Ranking & Score (33%) */}
+                          <div className="lg:w-[33%] flex flex-col gap-6">
+                            {/* Ranking Top 5 */}
+                            <div className="bg-white rounded-[40px] p-8 border border-stone-200 shadow-sm flex flex-col">
+                              <div className="flex items-center gap-2 mb-6">
+                                <Trophy className="text-stone-900" size={20} />
+                                <h4 className="text-lg font-serif italic text-stone-900">Ranking Top 5</h4>
+                              </div>
+                              <div className="space-y-4">
+                                {ranking.map((item, idx) => (
+                                  <div key={item.userId} className="flex items-center justify-between group">
+                                    <div className="flex items-center gap-3">
+                                      <div className={cn(
+                                        "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold",
+                                        idx === 0 ? "bg-amber-100 text-amber-600" : 
+                                        idx === 1 ? "bg-stone-200 text-stone-600" :
+                                        idx === 2 ? "bg-orange-100 text-orange-600" :
+                                        "bg-stone-50 text-stone-400"
+                                      )}>
+                                        {idx + 1}
+                                      </div>
+                                      <div>
+                                        <p className="text-xs font-bold text-stone-900 line-clamp-1">{item.name}</p>
+                                        <p className="text-[10px] text-stone-400">@{item.username}</p>
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <span className="text-xs font-black text-stone-900">{item.score}</span>
+                                      <span className="text-[10px] text-stone-400 ml-1">pts</span>
+                                    </div>
+                                  </div>
+                                ))}
+                                {ranking.length === 0 && (
+                                  <p className="text-stone-400 italic text-xs text-center py-4">Nenhum ponto este mês.</p>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* User Score */}
                             <div className="flex-1 bg-emerald-500 rounded-[40px] p-8 text-white shadow-xl shadow-emerald-500/20 flex flex-col justify-center items-center text-center relative overflow-hidden">
                               <div className="absolute -right-4 -top-4 opacity-10 rotate-12">
                                 <Trophy size={120} />
