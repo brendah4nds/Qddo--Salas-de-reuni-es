@@ -557,7 +557,7 @@ export default function App() {
 
             {/* Bate-papo Section */}
             <div>
-              <button 
+              <button
                 onClick={() => {
                   setView('chat');
                   setActiveSubTab('bate-papo');
@@ -573,6 +573,21 @@ export default function App() {
                     <MessageSquare size={18} />
                   </div>
                   <span className={`font-serif italic text-lg ${view === 'chat' ? 'text-white' : 'text-stone-900'}`}>Bate-papo</span>
+                </div>
+              </button>
+            </div>
+
+            {/* Regras Section */}
+            <div>
+              <button
+                onClick={() => setActiveGeneralCategory('regras')}
+                className="flex items-center justify-between w-full text-left group transition-all p-2 rounded-xl hover:bg-stone-50"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors bg-stone-100 text-stone-600 group-hover:bg-stone-900 group-hover:text-white">
+                    <ShieldCheck size={18} />
+                  </div>
+                  <span className="font-serif italic text-lg text-stone-900">Regras</span>
                 </div>
               </button>
             </div>
@@ -988,18 +1003,6 @@ export default function App() {
                     <p className="text-stone-400 text-xs md:text-sm hidden sm:block">Informações essenciais sobre a nossa comunidade e espaço.</p>
                   </div>
 
-                  {/* Regras */}
-                  <div
-                    onClick={() => setActiveGeneralCategory('regras')}
-                    className="bg-white p-4 md:p-8 rounded-[20px] md:rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
-                  >
-                    <div className="w-9 h-9 md:w-12 md:h-12 bg-stone-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
-                      <ShieldCheck size={18} className="md:hidden" /><ShieldCheck size={24} className="hidden md:block" />
-                    </div>
-                    <h3 className="text-base md:text-xl font-serif italic mb-1 md:mb-2">Regras</h3>
-                    <p className="text-stone-400 text-xs md:text-sm hidden sm:block">Diretrizes de convivência e uso das salas QDDO.</p>
-                  </div>
-
                   {/* Avisos */}
                   <div
                     onClick={() => setActiveGeneralCategory('aviso')}
@@ -1022,21 +1025,6 @@ export default function App() {
                     </div>
                     <h3 className="text-base md:text-xl font-serif italic mb-1 md:mb-2">Eventos</h3>
                     <p className="text-stone-400 text-xs md:text-sm hidden sm:block">Calendário de workshops, meetups e encontros.</p>
-                  </div>
-
-                  {/* Desafios */}
-                  <div
-                    onClick={() => {
-                      setView('portal');
-                      setActiveSubTab('desafios-publicos');
-                    }}
-                    className="bg-white p-4 md:p-8 rounded-[20px] md:rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
-                  >
-                    <div className="w-9 h-9 md:w-12 md:h-12 bg-stone-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
-                      <Trophy size={18} className="md:hidden" /><Trophy size={24} className="hidden md:block" />
-                    </div>
-                    <h3 className="text-base md:text-xl font-serif italic mb-1 md:mb-2">Desafios</h3>
-                    <p className="text-stone-400 text-xs md:text-sm hidden sm:block">Participe dos desafios e colabore com outros founders.</p>
                   </div>
 
                   {/* Comunicação */}
