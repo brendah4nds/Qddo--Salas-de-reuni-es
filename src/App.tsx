@@ -4,12 +4,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { 
-  collection, 
-  onSnapshot, 
-  doc, 
+import {
+  collection,
+  onSnapshot,
+  doc,
   setDoc,
   updateDoc,
+  deleteDoc,
   serverTimestamp,
   query,
   where
@@ -63,7 +64,10 @@ import {
   FileText,
   Menu,
   UserPlus,
-  Send
+  Send,
+  Pencil,
+  Trash2,
+  Check
 } from 'lucide-react';
 import { db, auth, handleFirestoreError, OperationType } from './firebase';
 import { Room, Booking, BookingStatus, Challenge } from './types';
@@ -88,6 +92,9 @@ const DEFAULT_BUSINESS_HOURS = Array.from({ length: 21 }, (_, i) => {
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [activeGeneralCategory, setActiveGeneralCategory] = useState<string | null>(null);
+  const [editingRuleId, setEditingRuleId] = useState<string | null>(null);
+  const [editingRuleData, setEditingRuleData] = useState<{ title: string; content: string }>({ title: '', content: '' });
+  const [deletingRuleId, setDeletingRuleId] = useState<string | null>(null);
 
   const [rooms, setRooms] = useState<Room[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -313,6 +320,20 @@ export default function App() {
   };
 
   const handleLogout = () => signOut(auth);
+
+  const handleSaveRule = async () => {
+    if (!editingRuleId) return;
+    await updateDoc(doc(db, 'news', editingRuleId), {
+      title: editingRuleData.title,
+      content: editingRuleData.content,
+    });
+    setEditingRuleId(null);
+  };
+
+  const handleDeleteRule = async (id: string) => {
+    await deleteDoc(doc(db, 'news', id));
+    setDeletingRuleId(null);
+  };
 
   const isAdmin = user?.email === ADMIN_EMAIL || founderData?.role === 'admin';
 
@@ -581,13 +602,17 @@ export default function App() {
             <div>
               <button
                 onClick={() => setActiveGeneralCategory('regras')}
-                className="flex items-center justify-between w-full text-left group transition-all p-2 rounded-xl hover:bg-stone-50"
+                className={`flex items-center justify-between w-full text-left group transition-all p-2 rounded-xl ${
+                  activeGeneralCategory === 'regras' ? 'bg-stone-900 text-white shadow-lg shadow-stone-200' : 'hover:bg-stone-50'
+                }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors bg-stone-100 text-stone-600 group-hover:bg-stone-900 group-hover:text-white">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                    activeGeneralCategory === 'regras' ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600 group-hover:bg-stone-900 group-hover:text-white'
+                  }`}>
                     <ShieldCheck size={18} />
                   </div>
-                  <span className="font-serif italic text-lg text-stone-900">Regras</span>
+                  <span className={`font-serif italic text-lg ${activeGeneralCategory === 'regras' ? 'text-white' : 'text-stone-900'}`}>Regras</span>
                 </div>
               </button>
             </div>
@@ -1040,104 +1065,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {activeGeneralCategory && (
-                  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white w-full max-w-2xl rounded-[48px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                      <div className="p-8 border-b border-stone-100 flex items-center justify-between bg-stone-50">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-stone-900 text-white rounded-2xl flex items-center justify-center">
-                            {activeGeneralCategory === 'info' ? <Info size={24} /> :
-                             activeGeneralCategory === 'regras' ? <ShieldCheck size={24} /> :
-                             activeGeneralCategory === 'aviso' ? <AlertTriangle size={24} /> :
-                             activeGeneralCategory === 'evento' ? <CalendarDays size={24} /> :
-                             <MessageSquare size={24} />}
-                          </div>
-                          <div>
-                            <h3 className="text-2xl font-serif italic text-stone-900 capitalize">{activeGeneralCategory}</h3>
-                            <p className="text-stone-400 text-xs uppercase tracking-widest font-bold">Portal Founder</p>
-                          </div>
-                        </div>
-                        <button 
-                          onClick={() => setActiveGeneralCategory(null)}
-                          className="w-10 h-10 rounded-full hover:bg-stone-200 flex items-center justify-center transition-colors"
-                        >
-                          <X size={20} />
-                        </button>
-                      </div>
-                      <div className="p-8 max-h-[60vh] overflow-y-auto space-y-6">
-                        {newsItems.filter(item => item.category === activeGeneralCategory).length > 0 ? (
-                          newsItems
-                            .filter(item => item.category === activeGeneralCategory)
-                            .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
-                            .map(item => (
-                              <div key={item.id} className="p-6 bg-stone-50 rounded-3xl border border-stone-100">
-                                <div className="flex justify-between items-start mb-2">
-                                  <h4 className="font-bold text-stone-900">{item.title}</h4>
-                                  <span className="text-[10px] text-stone-400 font-bold">
-                                    {item.createdAt?.seconds ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : ''}
-                                  </span>
-                                </div>
-                                <p className="text-stone-600 text-sm leading-relaxed whitespace-pre-wrap">{item.content}</p>
-                                 {item.eventDate && (
-                                   <div className="mt-4 flex flex-wrap items-center gap-4">
-                                     <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs">
-                                       <CalendarDays size={14} />
-                                       <span>Data: {new Date(item.eventDate + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
-                                     </div>
-                                     {(item.startTime || item.endTime) && (
-                                       <div className="flex flex-wrap items-center gap-4 text-amber-600 font-bold text-xs uppercase tracking-widest">
-                                         <div className="flex items-center gap-2">
-                                           <Clock size={14} />
-                                           <span>Início: {item.startTime || '--:--'}</span>
-                                         </div>
-                                         {item.endTime && (
-                                           <div className="flex items-center gap-2">
-                                             <Clock size={14} />
-                                             <span>Término: {item.endTime}</span>
-                                           </div>
-                                         )}
-                                       </div>
-                                     )}
-                                     {item.attachmentUrl && (
-                                       <a 
-                                         href={item.attachmentUrl}
-                                         target="_blank"
-                                         rel="noopener noreferrer"
-                                         className="flex items-center gap-2 text-stone-900 font-bold text-xs hover:underline decoration-stone-900/30"
-                                       >
-                                         <Paperclip size={14} />
-                                         <span>Anexo: {item.attachmentName || 'Ver Arquivo'}</span>
-                                         <ExternalLink size={14} />
-                                       </a>
-                                     )}
-                                   </div>
-                                 )}
-                              </div>
-                            ))
-                        ) : (
-                          <div className="text-center py-12">
-                            <p className="text-stone-400 italic">Nenhum conteúdo disponível nesta categoria.</p>
-                          </div>
-                        )}
-                      </div>
-                      {(user?.email === ADMIN_EMAIL || founderData?.role === 'admin') && (
-                        <div className="p-6 bg-stone-50 border-t border-stone-100 flex justify-center">
-                          <button 
-                            onClick={() => {
-                              setActiveGeneralCategory(null);
-                              setAdminInitialTab('news');
-                              setView('admin');
-                            }}
-                            className="bg-stone-900 text-white px-6 py-3 rounded-2xl font-bold hover:bg-stone-800 transition-all flex items-center gap-2"
-                          >
-                            <Plus size={18} />
-                            Adicionar Conteúdo
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
 
                 <button
                   onClick={() => {
@@ -1192,6 +1119,177 @@ export default function App() {
           </p>
         </div>
       </footer>
+
+      {activeGeneralCategory && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-2xl rounded-[48px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="p-8 border-b border-stone-100 flex items-center justify-between bg-stone-50">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-stone-900 text-white rounded-2xl flex items-center justify-center">
+                  {activeGeneralCategory === 'info' ? <Info size={24} /> :
+                   activeGeneralCategory === 'regras' ? <ShieldCheck size={24} /> :
+                   activeGeneralCategory === 'aviso' ? <AlertTriangle size={24} /> :
+                   activeGeneralCategory === 'evento' ? <CalendarDays size={24} /> :
+                   <MessageSquare size={24} />}
+                </div>
+                <div>
+                  <h3 className="text-2xl font-serif italic text-stone-900 capitalize">{activeGeneralCategory}</h3>
+                  <p className="text-stone-400 text-xs uppercase tracking-widest font-bold">Portal Founder</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveGeneralCategory(null)}
+                className="w-10 h-10 rounded-full hover:bg-stone-200 flex items-center justify-center transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-8 max-h-[60vh] overflow-y-auto space-y-6">
+              {newsItems.filter(item => item.category === activeGeneralCategory).length > 0 ? (
+                newsItems
+                  .filter(item => item.category === activeGeneralCategory)
+                  .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+                  .map(item => (
+                    <div key={item.id} className="p-6 bg-stone-50 rounded-3xl border border-stone-100">
+                      {editingRuleId === item.id ? (
+                        <div className="space-y-3">
+                          <input
+                            value={editingRuleData.title}
+                            onChange={e => setEditingRuleData(d => ({ ...d, title: e.target.value }))}
+                            className="w-full px-4 py-2 border border-stone-200 rounded-xl text-stone-900 font-bold focus:outline-none focus:ring-2 focus:ring-stone-900 transition"
+                          />
+                          <textarea
+                            rows={4}
+                            value={editingRuleData.content}
+                            onChange={e => setEditingRuleData(d => ({ ...d, content: e.target.value }))}
+                            className="w-full px-4 py-2 border border-stone-200 rounded-xl text-stone-600 text-sm focus:outline-none focus:ring-2 focus:ring-stone-900 transition resize-none"
+                          />
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              onClick={() => setEditingRuleId(null)}
+                              className="px-4 py-2 text-xs font-bold text-stone-500 hover:text-stone-900 transition"
+                            >
+                              Cancelar
+                            </button>
+                            <button
+                              onClick={handleSaveRule}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 bg-stone-900 text-white text-xs font-bold rounded-xl hover:bg-stone-700 transition"
+                            >
+                              <Check size={13} />
+                              Salvar
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-bold text-stone-900">{item.title}</h4>
+                            <div className="flex items-center gap-1 ml-2 shrink-0">
+                              <span className="text-[10px] text-stone-400 font-bold">
+                                {item.createdAt?.seconds ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : ''}
+                              </span>
+                              {isAdmin && (
+                                <>
+                                  <button
+                                    onClick={() => { setEditingRuleId(item.id); setEditingRuleData({ title: item.title, content: item.content }); setDeletingRuleId(null); }}
+                                    className="ml-2 p-1.5 text-stone-400 hover:text-stone-900 hover:bg-stone-200 rounded-lg transition"
+                                    title="Editar"
+                                  >
+                                    <Pencil size={13} />
+                                  </button>
+                                  {deletingRuleId === item.id ? (
+                                    <div className="flex items-center gap-1 ml-1">
+                                      <span className="text-[10px] text-red-500 font-bold">Confirmar?</span>
+                                      <button
+                                        onClick={() => handleDeleteRule(item.id)}
+                                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition font-bold text-[10px]"
+                                      >
+                                        Sim
+                                      </button>
+                                      <button
+                                        onClick={() => setDeletingRuleId(null)}
+                                        className="p-1.5 text-stone-400 hover:bg-stone-200 rounded-lg transition font-bold text-[10px]"
+                                      >
+                                        Não
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      onClick={() => { setDeletingRuleId(item.id); setEditingRuleId(null); }}
+                                      className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                                      title="Excluir"
+                                    >
+                                      <Trash2 size={13} />
+                                    </button>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-stone-600 text-sm leading-relaxed whitespace-pre-wrap">{item.content}</p>
+                          {item.eventDate && (
+                            <div className="mt-4 flex flex-wrap items-center gap-4">
+                              <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs">
+                                <CalendarDays size={14} />
+                                <span>Data: {new Date(item.eventDate + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
+                              </div>
+                              {(item.startTime || item.endTime) && (
+                                <div className="flex flex-wrap items-center gap-4 text-amber-600 font-bold text-xs uppercase tracking-widest">
+                                  <div className="flex items-center gap-2">
+                                    <Clock size={14} />
+                                    <span>Início: {item.startTime || '--:--'}</span>
+                                  </div>
+                                  {item.endTime && (
+                                    <div className="flex items-center gap-2">
+                                      <Clock size={14} />
+                                      <span>Término: {item.endTime}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                              {item.attachmentUrl && (
+                                <a
+                                  href={item.attachmentUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 text-stone-900 font-bold text-xs hover:underline decoration-stone-900/30"
+                                >
+                                  <Paperclip size={14} />
+                                  <span>Anexo: {item.attachmentName || 'Ver Arquivo'}</span>
+                                  <ExternalLink size={14} />
+                                </a>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  ))
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-stone-400 italic">Nenhum conteúdo disponível nesta categoria.</p>
+                </div>
+              )}
+            </div>
+            {(user?.email === ADMIN_EMAIL || founderData?.role === 'admin') && (
+              <div className="p-6 bg-stone-50 border-t border-stone-100 flex justify-center">
+                <button
+                  onClick={() => {
+                    setActiveGeneralCategory(null);
+                    setAdminInitialTab('news');
+                    setView('admin');
+                  }}
+                  className="bg-stone-900 text-white px-6 py-3 rounded-2xl font-bold hover:bg-stone-800 transition-all flex items-center gap-2"
+                >
+                  <Plus size={18} />
+                  Adicionar Conteúdo
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {showIndicarFounderModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowIndicarFounderModal(false)}>
           <div className="bg-white rounded-[32px] w-full max-w-md p-8 relative shadow-2xl" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
