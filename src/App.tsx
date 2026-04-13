@@ -975,80 +975,80 @@ export default function App() {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 mb-12">
                   {/* Infos */}
-                  <div 
+                  <div
                     onClick={() => setActiveGeneralCategory('info')}
-                    className="bg-white p-8 rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
+                    className="bg-white p-4 md:p-8 rounded-[20px] md:rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
                   >
-                    <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
-                      <Info size={24} />
+                    <div className="w-9 h-9 md:w-12 md:h-12 bg-stone-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
+                      <Info size={18} className="md:hidden" /><Info size={24} className="hidden md:block" />
                     </div>
-                    <h3 className="text-xl font-serif italic mb-2">Infos</h3>
-                    <p className="text-stone-400 text-sm">Informações essenciais sobre a nossa comunidade e espaço.</p>
+                    <h3 className="text-base md:text-xl font-serif italic mb-1 md:mb-2">Infos</h3>
+                    <p className="text-stone-400 text-xs md:text-sm hidden sm:block">Informações essenciais sobre a nossa comunidade e espaço.</p>
                   </div>
-                  
+
                   {/* Regras */}
-                  <div 
+                  <div
                     onClick={() => setActiveGeneralCategory('regras')}
-                    className="bg-white p-8 rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
+                    className="bg-white p-4 md:p-8 rounded-[20px] md:rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
                   >
-                    <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
-                      <ShieldCheck size={24} />
+                    <div className="w-9 h-9 md:w-12 md:h-12 bg-stone-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
+                      <ShieldCheck size={18} className="md:hidden" /><ShieldCheck size={24} className="hidden md:block" />
                     </div>
-                    <h3 className="text-xl font-serif italic mb-2">Regras</h3>
-                    <p className="text-stone-400 text-sm">Diretrizes de convivência e uso das salas QDDO.</p>
+                    <h3 className="text-base md:text-xl font-serif italic mb-1 md:mb-2">Regras</h3>
+                    <p className="text-stone-400 text-xs md:text-sm hidden sm:block">Diretrizes de convivência e uso das salas QDDO.</p>
                   </div>
 
                   {/* Avisos */}
-                  <div 
+                  <div
                     onClick={() => setActiveGeneralCategory('aviso')}
-                    className="bg-white p-8 rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
+                    className="bg-white p-4 md:p-8 rounded-[20px] md:rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
                   >
-                    <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
-                      <AlertTriangle size={24} />
+                    <div className="w-9 h-9 md:w-12 md:h-12 bg-stone-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
+                      <AlertTriangle size={18} className="md:hidden" /><AlertTriangle size={24} className="hidden md:block" />
                     </div>
-                    <h3 className="text-xl font-serif italic mb-2">Avisos</h3>
-                    <p className="text-stone-400 text-sm">Comunicados importantes e atualizações de última hora.</p>
+                    <h3 className="text-base md:text-xl font-serif italic mb-1 md:mb-2">Avisos</h3>
+                    <p className="text-stone-400 text-xs md:text-sm hidden sm:block">Comunicados importantes e atualizações de última hora.</p>
                   </div>
 
                   {/* Eventos */}
-                  <div 
+                  <div
                     onClick={() => setActiveGeneralCategory('evento')}
-                    className="bg-white p-8 rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
+                    className="bg-white p-4 md:p-8 rounded-[20px] md:rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
                   >
-                    <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
-                      <CalendarDays size={24} />
+                    <div className="w-9 h-9 md:w-12 md:h-12 bg-stone-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
+                      <CalendarDays size={18} className="md:hidden" /><CalendarDays size={24} className="hidden md:block" />
                     </div>
-                    <h3 className="text-xl font-serif italic mb-2">Eventos</h3>
-                    <p className="text-stone-400 text-sm">Calendário de workshops, meetups e encontros.</p>
+                    <h3 className="text-base md:text-xl font-serif italic mb-1 md:mb-2">Eventos</h3>
+                    <p className="text-stone-400 text-xs md:text-sm hidden sm:block">Calendário de workshops, meetups e encontros.</p>
                   </div>
 
                   {/* Desafios */}
-                  <div 
+                  <div
                     onClick={() => {
                       setView('portal');
                       setActiveSubTab('desafios-publicos');
                     }}
-                    className="bg-white p-8 rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
+                    className="bg-white p-4 md:p-8 rounded-[20px] md:rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
                   >
-                    <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
-                      <Trophy size={24} />
+                    <div className="w-9 h-9 md:w-12 md:h-12 bg-stone-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
+                      <Trophy size={18} className="md:hidden" /><Trophy size={24} className="hidden md:block" />
                     </div>
-                    <h3 className="text-xl font-serif italic mb-2">Desafios</h3>
-                    <p className="text-stone-400 text-sm">Participe dos desafios e colabore com outros founders.</p>
+                    <h3 className="text-base md:text-xl font-serif italic mb-1 md:mb-2">Desafios</h3>
+                    <p className="text-stone-400 text-xs md:text-sm hidden sm:block">Participe dos desafios e colabore com outros founders.</p>
                   </div>
 
                   {/* Comunicação */}
-                  <div 
+                  <div
                     onClick={() => setActiveGeneralCategory('comunicacao')}
-                    className="bg-white p-8 rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
+                    className="bg-white p-4 md:p-8 rounded-[20px] md:rounded-[32px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
                   >
-                    <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
-                      <MessageSquare size={24} />
+                    <div className="w-9 h-9 md:w-12 md:h-12 bg-stone-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-6 group-hover:bg-stone-900 group-hover:text-white transition-colors">
+                      <MessageSquare size={18} className="md:hidden" /><MessageSquare size={24} className="hidden md:block" />
                     </div>
-                    <h3 className="text-xl font-serif italic mb-2">Comunicação</h3>
-                    <p className="text-stone-400 text-sm">Canais oficiais de suporte e interação entre membros.</p>
+                    <h3 className="text-base md:text-xl font-serif italic mb-1 md:mb-2">Comunicação</h3>
+                    <p className="text-stone-400 text-xs md:text-sm hidden sm:block">Canais oficiais de suporte e interação entre membros.</p>
                   </div>
                 </div>
 
@@ -1196,9 +1196,12 @@ export default function App() {
         </main>
       </div>
 
-      <footer className="border-t border-stone-200 py-6 bg-white z-50">
-        <div className="max-w-[1600px] mx-auto px-6 text-center">
-          <p className="text-stone-400 text-[10px] uppercase tracking-widest font-bold">© 2026 qddo - Gestão Inteligente de Espaços - Brenda Ribeiro</p>
+      <footer className="border-t border-stone-200 py-2 md:py-6 bg-white z-50">
+        <div className="max-w-[1600px] mx-auto px-4 md:px-6 text-center">
+          <p className="text-stone-300 md:text-stone-400 text-[9px] md:text-[10px] uppercase tracking-widest font-medium md:font-bold">
+            <span className="hidden md:inline">© 2026 qddo - Gestão Inteligente de Espaços - Brenda Ribeiro</span>
+            <span className="md:hidden">© 2026 qddo</span>
+          </p>
         </div>
       </footer>
       {showIndicarFounderModal && (
