@@ -69,7 +69,8 @@ import {
   Send,
   Pencil,
   Trash2,
-  Check
+  Check,
+  Settings
 } from 'lucide-react';
 import { db, auth, storage, handleFirestoreError, OperationType } from './firebase';
 import { Room, Booking, BookingStatus, Challenge } from './types';
@@ -149,6 +150,14 @@ export default function App() {
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSaveError, setProfileSaveError] = useState('');
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showSocialModal, setShowSocialModal] = useState(false);
+  const [settingsSocialLinkedin, setSettingsSocialLinkedin] = useState('');
+  const [settingsSocialInstagram, setSettingsSocialInstagram] = useState('');
+  const [settingsSocialSite, setSettingsSocialSite] = useState('');
+  const [socialSaving, setSocialSaving] = useState(false);
+
   const [indicarNome, setIndicarNome] = useState('');
   const [indicarEmpresa, setIndicarEmpresa] = useState('');
   const [indicarArea, setIndicarArea] = useState('');
@@ -187,6 +196,48 @@ export default function App() {
       return 'AMANHÃ';
     }
     return format(d, 'EEEE', { locale: ptBR });
+  };
+
+  // Dark mode effect
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    localStorage.setItem('darkMode', String(darkMode));
+  }, [darkMode]);
+
+  // Load social links from founderData
+  useEffect(() => {
+    if (founderData) {
+      setSettingsSocialLinkedin(founderData.socialLinkedin || '');
+      setSettingsSocialInstagram(founderData.socialInstagram || '');
+      setSettingsSocialSite(founderData.socialSite || '');
+    }
+  }, [founderData]);
+
+  const openSettingsModal = () => {
+    setProfileMenuOpen(false);
+    setShowSettingsModal(true);
+  };
+
+  const openSocialModal = () => {
+    setProfileMenuOpen(false);
+    setShowSocialModal(true);
+  };
+
+  const handleSaveSocial = async () => {
+    if (!user) return;
+    setSocialSaving(true);
+    try {
+      await setDoc(doc(db, 'founders', user.uid), {
+        socialLinkedin: settingsSocialLinkedin.trim(),
+        socialInstagram: settingsSocialInstagram.trim(),
+        socialSite: settingsSocialSite.trim(),
+      }, { merge: true });
+      setShowSocialModal(false);
+    } catch (err) {
+      console.error('Erro ao salvar redes sociais:', err);
+    } finally {
+      setSocialSaving(false);
+    }
   };
 
   const openProfileModal = () => {
@@ -502,6 +553,20 @@ export default function App() {
                     >
                       <Users size={15} />
                       Meu Perfil
+                    </button>
+                    <button
+                      onClick={openSocialModal}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-stone-700 hover:bg-stone-50 transition-colors"
+                    >
+                      <Globe size={15} />
+                      Social
+                    </button>
+                    <button
+                      onClick={openSettingsModal}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-stone-700 hover:bg-stone-50 transition-colors"
+                    >
+                      <Settings size={15} />
+                      Configurações
                     </button>
                     <button
                       onClick={() => { setProfileMenuOpen(false); handleLogout(); }}
@@ -1636,6 +1701,142 @@ export default function App() {
               className="w-full bg-stone-900 text-white rounded-2xl py-3 text-sm font-bold uppercase tracking-widest hover:bg-stone-700 transition-colors disabled:opacity-50"
             >
               {profileSaving ? 'Salvando...' : 'Salvar'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showSettingsModal && user && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowSettingsModal(false)}
+        >
+          <div
+            className="bg-white rounded-[32px] w-full max-w-sm p-8 relative shadow-2xl"
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowSettingsModal(false)}
+              className="absolute top-5 right-5 text-stone-400 hover:text-stone-700 transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            <h2 className="text-xl font-black tracking-tight text-stone-900 mb-6">Configurações</h2>
+
+            {/* Modo Dark */}
+            <div className="mb-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-stone-400 mb-3">Tema</p>
+              <div className="flex items-center justify-between px-4 py-3 bg-stone-50 rounded-2xl">
+                <span className="text-sm font-medium text-stone-700">Modo Dark</span>
+                <button
+                  onClick={() => setDarkMode((prev: boolean) => !prev)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${darkMode ? 'bg-stone-900' : 'bg-stone-300'}`}
+                  aria-label="Alternar modo dark"
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${darkMode ? 'translate-x-6' : 'translate-x-1'}`}
+                  />
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowSettingsModal(false)}
+              className="w-full bg-stone-900 text-white rounded-2xl py-3 text-sm font-bold uppercase tracking-widest hover:bg-stone-700 transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showSocialModal && user && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowSocialModal(false)}
+        >
+          <div
+            className="bg-white rounded-[32px] w-full max-w-sm p-8 relative shadow-2xl"
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowSocialModal(false)}
+              className="absolute top-5 right-5 text-stone-400 hover:text-stone-700 transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            <h2 className="text-xl font-black tracking-tight text-stone-900 mb-6">Social</h2>
+
+            <div className="space-y-4 mb-8">
+              {/* LinkedIn */}
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-stone-500 mb-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                  LinkedIn
+                </label>
+                <input
+                  type="url"
+                  value={settingsSocialLinkedin}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSettingsSocialLinkedin(e.target.value)}
+                  placeholder="https://linkedin.com/in/seuperfil"
+                  className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900 transition bg-white placeholder:text-stone-300"
+                />
+                {settingsSocialLinkedin && (
+                  <a href={settingsSocialLinkedin} target="_blank" rel="noopener noreferrer" className="text-xs text-stone-400 hover:text-stone-700 mt-1 inline-flex items-center gap-1 transition-colors">
+                    <ExternalLink size={11} /> Abrir perfil
+                  </a>
+                )}
+              </div>
+
+              {/* Instagram */}
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-stone-500 mb-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                  Instagram
+                </label>
+                <input
+                  type="url"
+                  value={settingsSocialInstagram}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSettingsSocialInstagram(e.target.value)}
+                  placeholder="https://instagram.com/seuperfil"
+                  className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900 transition bg-white placeholder:text-stone-300"
+                />
+                {settingsSocialInstagram && (
+                  <a href={settingsSocialInstagram} target="_blank" rel="noopener noreferrer" className="text-xs text-stone-400 hover:text-stone-700 mt-1 inline-flex items-center gap-1 transition-colors">
+                    <ExternalLink size={11} /> Abrir perfil
+                  </a>
+                )}
+              </div>
+
+              {/* Site */}
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-stone-500 mb-1.5">
+                  <Globe size={12} />
+                  Site
+                </label>
+                <input
+                  type="url"
+                  value={settingsSocialSite}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSettingsSocialSite(e.target.value)}
+                  placeholder="https://seusite.com"
+                  className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900 transition bg-white placeholder:text-stone-300"
+                />
+                {settingsSocialSite && (
+                  <a href={settingsSocialSite} target="_blank" rel="noopener noreferrer" className="text-xs text-stone-400 hover:text-stone-700 mt-1 inline-flex items-center gap-1 transition-colors">
+                    <ExternalLink size={11} /> Abrir site
+                  </a>
+                )}
+              </div>
+            </div>
+
+            <button
+              onClick={handleSaveSocial}
+              disabled={socialSaving}
+              className="w-full bg-stone-900 text-white rounded-2xl py-3 text-sm font-bold uppercase tracking-widest hover:bg-stone-700 transition-colors disabled:opacity-50"
+            >
+              {socialSaving ? 'Salvando...' : 'Salvar'}
             </button>
           </div>
         </div>

@@ -19,6 +19,17 @@
   }
 }
 
+/* Dark Mode */
+html.dark {
+  filter: invert(1) hue-rotate(180deg);
+  background-color: #fff;
+}
+
+html.dark img,
+html.dark video {
+  filter: invert(1) hue-rotate(180deg);
+}
+
 /* Custom scrollbar for sidebar */
 aside::-webkit-scrollbar {
   width: 4px;
