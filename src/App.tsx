@@ -760,15 +760,6 @@ export default function App() {
                 <span className="font-medium">qddocentral.hub@h4ndslab.com</span>
               </div>
             </div>
-            <div className="p-6 border-t border-stone-100">
-              <div className="bg-stone-50 rounded-2xl p-4">
-                <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1">Status do Sistema</p>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs font-semibold text-stone-600">Operacional</span>
-                </div>
-              </div>
-            </div>
           </div>
         </aside>
 
