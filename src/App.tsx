@@ -53,7 +53,6 @@ import {
   Newspaper,
   ArrowRight,
   LayoutGrid,
-  Info,
   ShieldCheck,
   AlertTriangle,
   Trophy,
@@ -157,6 +156,7 @@ export default function App() {
   const [settingsSocialInstagram, setSettingsSocialInstagram] = useState('');
   const [settingsSocialSite, setSettingsSocialSite] = useState('');
   const [socialSaving, setSocialSaving] = useState(false);
+  const [selectedFounderDetail, setSelectedFounderDetail] = useState<any | null>(null);
 
   const [indicarNome, setIndicarNome] = useState('');
   const [indicarEmpresa, setIndicarEmpresa] = useState('');
@@ -1215,16 +1215,16 @@ export default function App() {
                 </div>
                 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8 mt-4">
-                  {/* Infos */}
+                  {/* Founders */}
                   <div
-                    onClick={() => setActiveGeneralCategory('info')}
+                    onClick={() => setActiveGeneralCategory('founders')}
                     className="bg-white p-4 lg:p-5 rounded-[20px] lg:rounded-[24px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
                   >
                     <div className="w-9 h-9 lg:w-10 lg:h-10 bg-stone-100 rounded-xl flex items-center justify-center mb-3 lg:mb-4 group-hover:bg-stone-900 group-hover:text-white transition-colors">
-                      <Info size={18} />
+                      <Users size={18} />
                     </div>
-                    <h3 className="text-base font-serif italic mb-1">Infos</h3>
-                    <p className="text-stone-400 text-xs hidden sm:block">Informações essenciais sobre a nossa comunidade e espaço.</p>
+                    <h3 className="text-base font-serif italic mb-1">Founders</h3>
+                    <p className="text-stone-400 text-xs hidden sm:block">Conheça todos os founders cadastrados na nossa comunidade.</p>
                   </div>
 
                   {/* Avisos */}
@@ -1325,7 +1325,7 @@ export default function App() {
             <div className="p-8 border-b border-stone-100 flex items-center justify-between bg-stone-50">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-stone-900 text-white rounded-2xl flex items-center justify-center">
-                  {activeGeneralCategory === 'info' ? <Info size={24} /> :
+                  {activeGeneralCategory === 'founders' ? <Users size={24} /> :
                    activeGeneralCategory === 'regras' ? <ShieldCheck size={24} /> :
                    activeGeneralCategory === 'aviso' ? <AlertTriangle size={24} /> :
                    activeGeneralCategory === 'evento' ? <CalendarDays size={24} /> :
@@ -1344,7 +1344,45 @@ export default function App() {
               </button>
             </div>
             <div className="p-8 max-h-[60vh] overflow-y-auto space-y-6">
-              {newsItems.filter(item => item.category === activeGeneralCategory).length > 0 ? (
+              {activeGeneralCategory === 'founders' ? (
+                allFounders.length > 0 ? (
+                  <div className="space-y-3">
+                    {allFounders.map(f => (
+                      <div key={f.id} className="flex items-center gap-4 p-4 bg-stone-50 rounded-2xl border border-stone-100 hover:border-stone-300 transition-all">
+                        <div className="w-11 h-11 bg-stone-200 rounded-full flex items-center justify-center shrink-0 overflow-hidden">
+                          {f.photoURL ? (
+                            <img src={f.photoURL} alt={f.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <Users size={18} className="text-stone-500" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <button
+                            onClick={() => setSelectedFounderDetail(f)}
+                            className="font-bold text-stone-900 hover:text-stone-600 transition-colors text-left truncate block w-full"
+                          >
+                            {f.name}
+                          </button>
+                          <p className="text-xs text-stone-400 truncate">{f.company?.name || `@${f.username}`}</p>
+                        </div>
+                        {(f.socialLinkedin || f.socialInstagram || f.socialSite) && (
+                          <button
+                            onClick={() => setSelectedFounderDetail(f)}
+                            className="text-stone-300 hover:text-stone-900 transition-colors shrink-0"
+                            title="Ver links sociais"
+                          >
+                            <ExternalLink size={15} />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-stone-400 italic">Nenhum founder cadastrado ainda.</p>
+                  </div>
+                )
+              ) : newsItems.filter(item => item.category === activeGeneralCategory).length > 0 ? (
                 newsItems
                   .filter(item => item.category === activeGeneralCategory)
                   .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
@@ -1470,7 +1508,7 @@ export default function App() {
                 </div>
               )}
             </div>
-            {(user?.email === ADMIN_EMAIL || founderData?.role === 'admin') && (
+            {activeGeneralCategory !== 'founders' && (user?.email === ADMIN_EMAIL || founderData?.role === 'admin') && (
               <div className="p-6 bg-stone-50 border-t border-stone-100 flex justify-center">
                 <button
                   onClick={() => {
@@ -1838,6 +1876,90 @@ export default function App() {
             >
               {socialSaving ? 'Salvando...' : 'Salvar'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Founder Detail Overlay */}
+      {selectedFounderDetail && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setSelectedFounderDetail(null)}
+        >
+          <div
+            className="bg-white rounded-[36px] w-full max-w-sm p-8 shadow-2xl animate-in zoom-in-95 duration-200 relative"
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedFounderDetail(null)}
+              className="absolute top-5 right-5 text-stone-400 hover:text-stone-700 transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Avatar + nome */}
+            <div className="flex flex-col items-center text-center mb-8">
+              <div className="w-20 h-20 rounded-full overflow-hidden bg-stone-200 flex items-center justify-center mb-4 ring-4 ring-stone-100">
+                {selectedFounderDetail.photoURL ? (
+                  <img src={selectedFounderDetail.photoURL} alt={selectedFounderDetail.name} className="w-full h-full object-cover" />
+                ) : (
+                  <Users size={28} className="text-stone-400" />
+                )}
+              </div>
+              <h3 className="text-xl font-serif italic text-stone-900 leading-tight">{selectedFounderDetail.name}</h3>
+              {selectedFounderDetail.username && (
+                <p className="text-xs text-stone-400 font-bold mt-0.5">@{selectedFounderDetail.username}</p>
+              )}
+              {selectedFounderDetail.company?.name && (
+                <p className="text-sm text-stone-500 mt-1">{selectedFounderDetail.company.name}</p>
+              )}
+              {selectedFounderDetail.bio && (
+                <p className="text-xs text-stone-400 mt-3 leading-relaxed">{selectedFounderDetail.bio}</p>
+              )}
+            </div>
+
+            {/* Links sociais */}
+            <div className="space-y-3">
+              {selectedFounderDetail.socialLinkedin && (
+                <a
+                  href={selectedFounderDetail.socialLinkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 w-full px-5 py-3.5 bg-stone-50 border border-stone-200 rounded-2xl hover:bg-stone-900 hover:border-stone-900 hover:text-white group transition-all"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-stone-500 group-hover:text-white shrink-0"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                  <span className="text-sm font-bold text-stone-700 group-hover:text-white truncate flex-1">LinkedIn</span>
+                  <ExternalLink size={13} className="text-stone-300 group-hover:text-white shrink-0" />
+                </a>
+              )}
+              {selectedFounderDetail.socialInstagram && (
+                <a
+                  href={selectedFounderDetail.socialInstagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 w-full px-5 py-3.5 bg-stone-50 border border-stone-200 rounded-2xl hover:bg-stone-900 hover:border-stone-900 hover:text-white group transition-all"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-stone-500 group-hover:text-white shrink-0"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                  <span className="text-sm font-bold text-stone-700 group-hover:text-white truncate flex-1">Instagram</span>
+                  <ExternalLink size={13} className="text-stone-300 group-hover:text-white shrink-0" />
+                </a>
+              )}
+              {selectedFounderDetail.socialSite && (
+                <a
+                  href={selectedFounderDetail.socialSite}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 w-full px-5 py-3.5 bg-stone-50 border border-stone-200 rounded-2xl hover:bg-stone-900 hover:border-stone-900 hover:text-white group transition-all"
+                >
+                  <Globe size={16} className="text-stone-500 group-hover:text-white shrink-0" />
+                  <span className="text-sm font-bold text-stone-700 group-hover:text-white truncate flex-1">Site</span>
+                  <ExternalLink size={13} className="text-stone-300 group-hover:text-white shrink-0" />
+                </a>
+              )}
+              {!selectedFounderDetail.socialLinkedin && !selectedFounderDetail.socialInstagram && !selectedFounderDetail.socialSite && (
+                <p className="text-center text-stone-400 text-sm italic py-4">Nenhum link social cadastrado.</p>
+              )}
+            </div>
           </div>
         </div>
       )}
