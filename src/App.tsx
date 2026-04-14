@@ -53,7 +53,6 @@ import {
   Newspaper,
   ArrowRight,
   LayoutGrid,
-  Info,
   ShieldCheck,
   AlertTriangle,
   Trophy,
@@ -1215,16 +1214,16 @@ export default function App() {
                 </div>
                 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8 mt-4">
-                  {/* Infos */}
+                  {/* Founders */}
                   <div
-                    onClick={() => setActiveGeneralCategory('info')}
+                    onClick={() => setActiveGeneralCategory('founders')}
                     className="bg-white p-4 lg:p-5 rounded-[20px] lg:rounded-[24px] border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer"
                   >
                     <div className="w-9 h-9 lg:w-10 lg:h-10 bg-stone-100 rounded-xl flex items-center justify-center mb-3 lg:mb-4 group-hover:bg-stone-900 group-hover:text-white transition-colors">
-                      <Info size={18} />
+                      <Users size={18} />
                     </div>
-                    <h3 className="text-base font-serif italic mb-1">Infos</h3>
-                    <p className="text-stone-400 text-xs hidden sm:block">Informações essenciais sobre a nossa comunidade e espaço.</p>
+                    <h3 className="text-base font-serif italic mb-1">Founders</h3>
+                    <p className="text-stone-400 text-xs hidden sm:block">Conheça todos os founders cadastrados na nossa comunidade.</p>
                   </div>
 
                   {/* Avisos */}
@@ -1325,7 +1324,7 @@ export default function App() {
             <div className="p-8 border-b border-stone-100 flex items-center justify-between bg-stone-50">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-stone-900 text-white rounded-2xl flex items-center justify-center">
-                  {activeGeneralCategory === 'info' ? <Info size={24} /> :
+                  {activeGeneralCategory === 'founders' ? <Users size={24} /> :
                    activeGeneralCategory === 'regras' ? <ShieldCheck size={24} /> :
                    activeGeneralCategory === 'aviso' ? <AlertTriangle size={24} /> :
                    activeGeneralCategory === 'evento' ? <CalendarDays size={24} /> :
@@ -1344,7 +1343,41 @@ export default function App() {
               </button>
             </div>
             <div className="p-8 max-h-[60vh] overflow-y-auto space-y-6">
-              {newsItems.filter(item => item.category === activeGeneralCategory).length > 0 ? (
+              {activeGeneralCategory === 'founders' ? (
+                allFounders.length > 0 ? (
+                  <div className="space-y-4">
+                    {allFounders.map(f => (
+                      <div key={f.id} className="flex items-center gap-4 p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                        <div className="w-10 h-10 bg-stone-200 rounded-full flex items-center justify-center shrink-0">
+                          {f.photoURL ? (
+                            <img src={f.photoURL} alt={f.name} className="w-10 h-10 rounded-full object-cover" />
+                          ) : (
+                            <Users size={18} className="text-stone-500" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-stone-900 truncate">{f.name}</p>
+                          <p className="text-xs text-stone-400 truncate">@{f.username}{f.company?.name ? ` · ${f.company.name}` : ''}</p>
+                        </div>
+                        {f.instagram && (
+                          <a
+                            href={`https://instagram.com/${f.instagram.replace('@', '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-stone-400 hover:text-stone-900 transition-colors shrink-0"
+                          >
+                            <ExternalLink size={15} />
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-stone-400 italic">Nenhum founder cadastrado ainda.</p>
+                  </div>
+                )
+              ) : newsItems.filter(item => item.category === activeGeneralCategory).length > 0 ? (
                 newsItems
                   .filter(item => item.category === activeGeneralCategory)
                   .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
@@ -1470,7 +1503,7 @@ export default function App() {
                 </div>
               )}
             </div>
-            {(user?.email === ADMIN_EMAIL || founderData?.role === 'admin') && (
+            {activeGeneralCategory !== 'founders' && (user?.email === ADMIN_EMAIL || founderData?.role === 'admin') && (
               <div className="p-6 bg-stone-50 border-t border-stone-100 flex justify-center">
                 <button
                   onClick={() => {
