@@ -258,6 +258,8 @@ export default function App() {
       await uploadBytes(fileRef, file);
       const downloadURL = await getDownloadURL(fileRef);
       await updateProfile(user, { photoURL: downloadURL });
+      await user.reload();
+      setUser(auth.currentUser);
       await updateDoc(doc(db, 'founders', user.uid), { photoURL: downloadURL });
     } catch (err) {
       console.error('Erro ao atualizar foto:', err);
