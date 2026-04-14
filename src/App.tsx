@@ -729,12 +729,44 @@ export default function App() {
             </div>
           </div>
 
-          <div className="mt-auto p-6 border-t border-stone-100">
-            <div className="bg-stone-50 rounded-2xl p-4">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1">Status do Sistema</p>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                <span className="text-xs font-semibold text-stone-600">Operacional</span>
+          <div className="mt-auto">
+            <div className="px-6 pt-6 pb-3">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-3">Redes Sociais</p>
+              <div className="flex flex-col gap-2">
+                <a
+                  href="https://instagram.com/qddo.central.hub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-xs text-stone-500 hover:text-stone-900 transition-colors group"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-stone-400 group-hover:text-stone-700 transition-colors flex-shrink-0"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                  <span className="font-medium">@qddo.central.hub</span>
+                </a>
+                <a
+                  href="https://tiktok.com/@qddo.central.hub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-xs text-stone-500 hover:text-stone-900 transition-colors group"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-stone-400 group-hover:text-stone-700 transition-colors flex-shrink-0"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.22 8.22 0 0 0 4.83 1.56V6.78a4.85 4.85 0 0 1-1.06-.09z"/></svg>
+                  <span className="font-medium">@qddo.central.hub</span>
+                </a>
+              </div>
+            </div>
+            <div className="px-6 pb-3">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-2">Contato</p>
+              <div className="flex items-center gap-2 text-xs text-stone-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-stone-400 flex-shrink-0"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                <span className="font-medium">qddocentral.hub@h4ndslab.com</span>
+              </div>
+            </div>
+            <div className="p-6 border-t border-stone-100">
+              <div className="bg-stone-50 rounded-2xl p-4">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1">Status do Sistema</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs font-semibold text-stone-600">Operacional</span>
+                </div>
               </div>
             </div>
           </div>
