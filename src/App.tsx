@@ -1042,7 +1042,8 @@ export default function App() {
                             userId,
                             score,
                             name: founder?.name || 'Founder',
-                            username: founder?.username || userId.slice(0, 6)
+                            username: founder?.username || userId.slice(0, 6),
+                            photoURL: founder?.photoURL || null
                           };
                         })
                         .sort((a, b) => b.score - a.score);
@@ -1159,14 +1160,25 @@ export default function App() {
                                   <div key={item.userId} className="flex items-center justify-between group">
                                     <div className="flex items-center gap-2">
                                       <div className={cn(
-                                        "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold",
-                                        idx === 0 ? "bg-amber-100 text-amber-600" : 
+                                        "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0",
+                                        idx === 0 ? "bg-amber-100 text-amber-600" :
                                         idx === 1 ? "bg-stone-200 text-stone-600" :
                                         idx === 2 ? "bg-orange-100 text-orange-600" :
                                         "bg-stone-50 text-stone-400"
                                       )}>
                                         {idx + 1}
                                       </div>
+                                      {item.photoURL ? (
+                                        <img
+                                          src={item.photoURL}
+                                          alt={item.name}
+                                          className="w-7 h-7 rounded-full object-cover flex-shrink-0 border border-stone-200"
+                                        />
+                                      ) : (
+                                        <div className="w-7 h-7 rounded-full bg-stone-100 flex items-center justify-center flex-shrink-0 border border-stone-200">
+                                          <Users size={14} className="text-stone-400" />
+                                        </div>
+                                      )}
                                       <div>
                                         <p className="text-xs font-bold text-stone-900 line-clamp-1">{item.name}</p>
                                         <p className="text-[10px] text-stone-400">@{item.username}</p>
