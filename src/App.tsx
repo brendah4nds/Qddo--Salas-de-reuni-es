@@ -142,6 +142,8 @@ export default function App() {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [profileName, setProfileName] = useState('');
+  const [profileUsername, setProfileUsername] = useState('');
   const [profileBirthDay, setProfileBirthDay] = useState('');
   const [profileBirthMonth, setProfileBirthMonth] = useState('');
   const [profileBirthYear, setProfileBirthYear] = useState('');
@@ -241,6 +243,8 @@ export default function App() {
   };
 
   const openProfileModal = () => {
+    setProfileName(founderData?.name || user?.displayName || '');
+    setProfileUsername(founderData?.username || '');
     setProfileBirthDay(founderData?.birthDay || '');
     setProfileBirthMonth(founderData?.birthMonth || '');
     setProfileBirthYear(founderData?.birthYear || '');
@@ -271,10 +275,16 @@ export default function App() {
 
   const handleSaveProfile = async () => {
     if (!user) return;
+    if (!profileUsername.trim()) {
+      setProfileSaveError('O username não pode ser vazio.');
+      return;
+    }
     setProfileSaving(true);
     setProfileSaveError('');
     try {
       await setDoc(doc(db, 'founders', user.uid), {
+        name: profileName.trim(),
+        username: profileUsername.trim().toLowerCase().replace(/\s+/g, ''),
         birthDay: profileBirthDay,
         birthMonth: profileBirthMonth,
         birthYear: profileBirthYear,
@@ -1384,7 +1394,9 @@ export default function App() {
                           >
                             {f.name}
                           </button>
-                          <p className="text-xs text-stone-400 truncate">{f.company?.name || `@${f.username}`}</p>
+                          {f.company?.name && (
+                            <p className="text-xs text-stone-400 truncate">{f.company.name}</p>
+                          )}
                         </div>
                         {(f.socialLinkedin || f.socialInstagram || f.socialSite) && (
                           <button
@@ -1696,11 +1708,29 @@ export default function App() {
               />
             </div>
 
-            {/* Nome e Email (somente leitura) */}
+            {/* Nome, Username e Email */}
             <div className="space-y-3 mb-6">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-1">Nome</label>
-                <p className="text-sm text-stone-900 px-4 py-3 bg-stone-50 rounded-2xl">{user.displayName || '—'}</p>
+                <input
+                  type="text"
+                  value={profileName}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfileName(e.target.value)}
+                  className="w-full text-sm text-stone-900 px-4 py-3 bg-stone-50 rounded-2xl border border-transparent focus:border-stone-300 focus:outline-none transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-1">Username</label>
+                <div className="flex items-center bg-stone-50 rounded-2xl border border-transparent focus-within:border-stone-300 transition-colors px-4 py-3 gap-1">
+                  <span className="text-stone-400 text-sm select-none">@</span>
+                  <input
+                    type="text"
+                    value={profileUsername}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfileUsername(e.target.value)}
+                    className="flex-1 bg-transparent text-sm text-stone-900 focus:outline-none"
+                    placeholder="seu.username"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-1">E-mail</label>
