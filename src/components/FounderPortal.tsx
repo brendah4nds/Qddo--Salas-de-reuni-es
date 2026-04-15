@@ -377,6 +377,15 @@ export function FounderPortal({
                     <div className="space-y-8">
                       <div>
                         <h3 className="text-3xl font-serif italic mb-6">Dados do Founder</h3>
+                        {selectedCompanyFounder.photoURL && (
+                          <div className="mb-6">
+                            <img
+                              src={selectedCompanyFounder.photoURL}
+                              alt={selectedCompanyFounder.name}
+                              className="w-24 h-24 rounded-full object-cover border-2 border-stone-200 shadow-sm"
+                            />
+                          </div>
+                        )}
                         <div className="space-y-4">
                           <div>
                             <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Nome Completo</span>
