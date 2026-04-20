@@ -236,6 +236,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /qcoin_sections/{sectionId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
     match /indicacoes/{indicacaoId} {
       allow read: if isAdmin();
       allow create: if isAuthenticated();
