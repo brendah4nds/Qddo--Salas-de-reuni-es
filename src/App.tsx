@@ -226,60 +226,60 @@ export default function App() {
   const [estagiosCols, setEstagiosCols] = useState(['Estágio', 'Threshold', 'Benefícios', 'Requisitos', 'Status']);
   const [estagiosColWidths, setEstagiosColWidths] = useState([130, 80, 200, 200, 200]);
   const estagiosResizingRef = useRef<{ colIdx: number; startX: number; startWidth: number } | null>(null);
-  const [estagiosRows, setEstagiosRows] = useState([
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
+  const [estagiosRows, setEstagiosRows] = useState<string[][]>([
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
   ]);
   const [rankingCols, setRankingCols] = useState(['Posição', 'Founder', 'Empresa', 'QCoins', 'Variação']);
   const [rankingColWidths, setRankingColWidths] = useState([80, 150, 150, 100, 100]);
   const rankingResizingRef = useRef<{ colIdx: number; startX: number; startWidth: number } | null>(null);
-  const [rankingRows, setRankingRows] = useState([
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
+  const [rankingRows, setRankingRows] = useState<string[][]>([
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
   ]);
   const [premiacoesCols, setPremiacoesCols] = useState(['Prêmio', 'Descrição', 'Requisito', 'Frequência', 'Status']);
   const [premiacoesColWidths, setPremiacoesColWidths] = useState([130, 200, 150, 100, 100]);
   const premiacoesResizingRef = useRef<{ colIdx: number; startX: number; startWidth: number } | null>(null);
-  const [premiacoesRows, setPremiacoesRows] = useState([
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
+  const [premiacoesRows, setPremiacoesRows] = useState<string[][]>([
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
   ]);
   const [consequenciasCols, setConsequenciasCols] = useState(['Comportamento', 'Consequência', 'Severidade', 'Reversível', 'Observações']);
   const [consequenciasColWidths, setConsequenciasColWidths] = useState([150, 180, 100, 90, 180]);
   const consequenciasResizingRef = useRef<{ colIdx: number; startX: number; startWidth: number } | null>(null);
-  const [consequenciasRows, setConsequenciasRows] = useState([
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
-    { col0: '', col1: '', col2: '', col3: '', col4: '' },
+  const [consequenciasRows, setConsequenciasRows] = useState<string[][]>([
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
   ]);
   const [pontuacaoCols, setPontuacaoCols] = useState(['Ação', 'Pontuação']);
   const [pontuacaoColWidths, setPontuacaoColWidths] = useState([400, 150]);
   const pontuacaoResizingRef = useRef<{ colIdx: number; startX: number; startWidth: number } | null>(null);
-  const [pontuacaoRows, setPontuacaoRows] = useState([
-    { col0: 'Check-in diário', col1: '1' },
-    { col0: 'Evento interno QDDO', col1: '2' },
-    { col0: 'Streak 5 dias consecutivos', col1: '3 (bônus)' },
-    { col0: 'Resolução de desafio aberto de outro founder', col1: '5' },
-    { col0: 'Indicação founder com fit para o hub', col1: '5' },
-    { col0: 'Aprovação de founder indicado por você', col1: '10' },
-    { col0: 'Mentoria espontânea (mín. 30 min)', col1: '5' },
-    { col0: 'Contribuição técnica ao app/site/infra QDDO', col1: '8' },
-    { col0: 'Realização do Desafio Mensal', col1: '10' },
-    { col0: 'Avançar estágio', col1: '25' },
-    { col0: 'Crescimento de faturamento MoM', col1: '5' },
-    { col0: 'Completar desafio de Mantenedor', col1: '15' },
-    { col0: 'Participar de hackathon corporativo', col1: '10' },
-    { col0: 'Vencer hackathon', col1: '30 (bônus)' },
-    { col0: 'Relatório mensal para mantenedor de sala', col1: '8' },
-    { col0: 'Convidado no podcast QDDO', col1: '8' },
-    { col0: 'Pitch no Demo Day', col1: '10' },
+  const [pontuacaoRows, setPontuacaoRows] = useState<string[][]>([
+    ['Check-in diário', '1'],
+    ['Evento interno QDDO', '2'],
+    ['Streak 5 dias consecutivos', '3 (bônus)'],
+    ['Resolução de desafio aberto de outro founder', '5'],
+    ['Indicação founder com fit para o hub', '5'],
+    ['Aprovação de founder indicado por você', '10'],
+    ['Mentoria espontânea (mín. 30 min)', '5'],
+    ['Contribuição técnica ao app/site/infra QDDO', '8'],
+    ['Realização do Desafio Mensal', '10'],
+    ['Avançar estágio', '25'],
+    ['Crescimento de faturamento MoM', '5'],
+    ['Completar desafio de Mantenedor', '15'],
+    ['Participar de hackathon corporativo', '10'],
+    ['Vencer hackathon', '30 (bônus)'],
+    ['Relatório mensal para mantenedor de sala', '8'],
+    ['Convidado no podcast QDDO', '8'],
+    ['Pitch no Demo Day', '10'],
   ]);
 
   const [indicarNome, setIndicarNome] = useState('');
@@ -565,25 +565,54 @@ export default function App() {
     const qcoinTablesUnsubscribe = onSnapshot(doc(db, 'settings', 'qcoin_tables'), (snapshot) => {
       if (!snapshot.exists()) return;
       const data = snapshot.data();
+      // Desserializa tableRows: novo formato é JSON string, formatos antigos são array ou objeto
+      const parseRows = (raw: any): string[][] => {
+        // Novo formato: JSON string serializado no save
+        if (typeof raw === 'string') {
+          try { return JSON.parse(raw); } catch { return []; }
+        }
+        // Formato intermediário: array de arrays (correto)
+        if (Array.isArray(raw) && raw.every(r => Array.isArray(r))) return raw;
+        // Formato antigo: array de objetos - mapeia chaves para colunas na ordem correta
+        if (Array.isArray(raw)) {
+          return raw.map((row: any) => {
+            if (Array.isArray(row)) return row;
+            const keys = Object.keys(row);
+            // col0/col1/... → ordena numericamente
+            if (keys.every(k => /^col\d+$/.test(k))) {
+              return keys
+                .sort((a, b) => Number(a.replace('col', '')) - Number(b.replace('col', '')))
+                .map(k => String(row[k] ?? ''));
+            }
+            // estagio/threshold/... → ordem semântica conhecida
+            const estagiosOrder = ['estagio', 'threshold', 'beneficios', 'requisitos', 'status'];
+            if (keys.some(k => estagiosOrder.includes(k))) {
+              return estagiosOrder.map(k => String(row[k] ?? ''));
+            }
+            return Object.values(row).map(String);
+          });
+        }
+        return [];
+      };
       const hydrate = (sectionId: string, s: any) => {
         if (sectionId === 'pontuacao') {
-          if (s.tableRows) setPontuacaoRows(s.tableRows);
+          if (s.tableRows) setPontuacaoRows(parseRows(s.tableRows));
           if (s.tableCols) setPontuacaoCols(s.tableCols);
           if (s.tableColWidths) setPontuacaoColWidths(s.tableColWidths);
         } else if (sectionId === 'estagios') {
-          if (s.tableRows) setEstagiosRows(s.tableRows);
+          if (s.tableRows) setEstagiosRows(parseRows(s.tableRows));
           if (s.tableCols) setEstagiosCols(s.tableCols);
           if (s.tableColWidths) setEstagiosColWidths(s.tableColWidths);
         } else if (sectionId === 'ranking') {
-          if (s.tableRows) setRankingRows(s.tableRows);
+          if (s.tableRows) setRankingRows(parseRows(s.tableRows));
           if (s.tableCols) setRankingCols(s.tableCols);
           if (s.tableColWidths) setRankingColWidths(s.tableColWidths);
         } else if (sectionId === 'premiacoes') {
-          if (s.tableRows) setPremiacoesRows(s.tableRows);
+          if (s.tableRows) setPremiacoesRows(parseRows(s.tableRows));
           if (s.tableCols) setPremiacoesCols(s.tableCols);
           if (s.tableColWidths) setPremiacoesColWidths(s.tableColWidths);
         } else if (sectionId === 'consequencias') {
-          if (s.tableRows) setConsequenciasRows(s.tableRows);
+          if (s.tableRows) setConsequenciasRows(parseRows(s.tableRows));
           if (s.tableCols) setConsequenciasCols(s.tableCols);
           if (s.tableColWidths) setConsequenciasColWidths(s.tableColWidths);
         }
@@ -691,15 +720,15 @@ export default function App() {
     try {
       let tableData: any = {};
       if (sectionId === 'pontuacao') {
-        tableData = { tableRows: pontuacaoRows, tableCols: pontuacaoCols, tableColWidths: pontuacaoColWidths };
+        tableData = { tableRows: JSON.stringify(pontuacaoRows), tableCols: pontuacaoCols, tableColWidths: pontuacaoColWidths };
       } else if (sectionId === 'estagios') {
-        tableData = { tableRows: estagiosRows, tableCols: estagiosCols, tableColWidths: estagiosColWidths };
+        tableData = { tableRows: JSON.stringify(estagiosRows), tableCols: estagiosCols, tableColWidths: estagiosColWidths };
       } else if (sectionId === 'ranking') {
-        tableData = { tableRows: rankingRows, tableCols: rankingCols, tableColWidths: rankingColWidths };
+        tableData = { tableRows: JSON.stringify(rankingRows), tableCols: rankingCols, tableColWidths: rankingColWidths };
       } else if (sectionId === 'premiacoes') {
-        tableData = { tableRows: premiacoesRows, tableCols: premiacoesCols, tableColWidths: premiacoesColWidths };
+        tableData = { tableRows: JSON.stringify(premiacoesRows), tableCols: premiacoesCols, tableColWidths: premiacoesColWidths };
       } else if (sectionId === 'consequencias') {
-        tableData = { tableRows: consequenciasRows, tableCols: consequenciasCols, tableColWidths: consequenciasColWidths };
+        tableData = { tableRows: JSON.stringify(consequenciasRows), tableCols: consequenciasCols, tableColWidths: consequenciasColWidths };
       }
       await setDoc(doc(db, 'settings', 'qcoin_tables'), { [sectionId]: tableData }, { merge: true });
       setQcoinTableSaveStatus('success');
@@ -1276,10 +1305,10 @@ export default function App() {
                                   <tbody>
                                     {pontuacaoRows.map((row, idx) => (
                                       <tr key={idx} className="border-b border-stone-100 hover:bg-stone-50/50 transition-colors">
-                                        {(Object.keys(row) as (keyof typeof row)[]).map(key => (
-                                          <td key={key} className="px-3 py-1 align-top">
+                                        {(row as string[]).map((cell, cellIdx) => (
+                                          <td key={cellIdx} className="px-3 py-1 align-top">
                                             <textarea
-                                              value={row[key]}
+                                              value={cell}
                                               rows={1}
                                               ref={(el: HTMLTextAreaElement | null) => {
                                                 if (el) {
@@ -1289,7 +1318,7 @@ export default function App() {
                                               }}
                                               onChange={e => {
                                                 const updated = pontuacaoRows.map((r, i) =>
-                                                  i === idx ? { ...r, [key]: e.target.value } : r
+                                                  i === idx ? (r as string[]).map((c, j) => j === cellIdx ? e.target.value : c) : r
                                                 );
                                                 setPontuacaoRows(updated);
                                               }}
@@ -1310,7 +1339,7 @@ export default function App() {
                               </div>
                               <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
                                 <button
-                                  onClick={() => setPontuacaoRows(prev => [...prev, { col0: '', col1: '' }])}
+                                  onClick={() => setPontuacaoRows(prev => [...prev, new Array(pontuacaoCols.length).fill('')])}
                                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
                                 >
                                   <Plus size={14} />
@@ -1376,10 +1405,10 @@ export default function App() {
                                   <tbody>
                                     {estagiosRows.map((row, idx) => (
                                       <tr key={idx} className="border-b border-stone-100 hover:bg-stone-50/50 transition-colors">
-                                        {(Object.keys(row) as (keyof typeof row)[]).map(key => (
-                                          <td key={key} className="px-3 py-1 align-top">
+                                        {(row as string[]).map((cell, cellIdx) => (
+                                          <td key={cellIdx} className="px-3 py-1 align-top">
                                             <textarea
-                                              value={row[key]}
+                                              value={cell}
                                               rows={1}
                                               ref={(el: HTMLTextAreaElement | null) => {
                                                 if (el) {
@@ -1389,7 +1418,7 @@ export default function App() {
                                               }}
                                               onChange={e => {
                                                 const updated = estagiosRows.map((r, i) =>
-                                                  i === idx ? { ...r, [key]: e.target.value } : r
+                                                  i === idx ? (r as string[]).map((c, j) => j === cellIdx ? e.target.value : c) : r
                                                 );
                                                 setEstagiosRows(updated);
                                               }}
@@ -1410,7 +1439,7 @@ export default function App() {
                               </div>
                               <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
                                 <button
-                                  onClick={() => setEstagiosRows(prev => [...prev, { estagio: '', threshold: '', beneficios: '', requisitos: '', status: '' }])}
+                                  onClick={() => setEstagiosRows(prev => [...prev, new Array(estagiosCols.length).fill('')])}
                                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
                                 >
                                   <Plus size={14} />
@@ -1476,10 +1505,10 @@ export default function App() {
                                   <tbody>
                                     {rankingRows.map((row, idx) => (
                                       <tr key={idx} className="border-b border-stone-100 hover:bg-stone-50/50 transition-colors">
-                                        {(Object.keys(row) as (keyof typeof row)[]).map(key => (
-                                          <td key={key} className="px-3 py-1 align-top">
+                                        {(row as string[]).map((cell, cellIdx) => (
+                                          <td key={cellIdx} className="px-3 py-1 align-top">
                                             <textarea
-                                              value={row[key]}
+                                              value={cell}
                                               rows={1}
                                               ref={(el: HTMLTextAreaElement | null) => {
                                                 if (el) {
@@ -1489,7 +1518,7 @@ export default function App() {
                                               }}
                                               onChange={e => {
                                                 const updated = rankingRows.map((r, i) =>
-                                                  i === idx ? { ...r, [key]: e.target.value } : r
+                                                  i === idx ? (r as string[]).map((c, j) => j === cellIdx ? e.target.value : c) : r
                                                 );
                                                 setRankingRows(updated);
                                               }}
@@ -1510,7 +1539,7 @@ export default function App() {
                               </div>
                               <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
                                 <button
-                                  onClick={() => setRankingRows(prev => [...prev, { col0: '', col1: '', col2: '', col3: '', col4: '' }])}
+                                  onClick={() => setRankingRows(prev => [...prev, new Array(rankingCols.length).fill('')])}
                                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
                                 >
                                   <Plus size={14} />
@@ -1576,10 +1605,10 @@ export default function App() {
                                   <tbody>
                                     {premiacoesRows.map((row, idx) => (
                                       <tr key={idx} className="border-b border-stone-100 hover:bg-stone-50/50 transition-colors">
-                                        {(Object.keys(row) as (keyof typeof row)[]).map(key => (
-                                          <td key={key} className="px-3 py-1 align-top">
+                                        {(row as string[]).map((cell, cellIdx) => (
+                                          <td key={cellIdx} className="px-3 py-1 align-top">
                                             <textarea
-                                              value={row[key]}
+                                              value={cell}
                                               rows={1}
                                               ref={(el: HTMLTextAreaElement | null) => {
                                                 if (el) {
@@ -1589,7 +1618,7 @@ export default function App() {
                                               }}
                                               onChange={e => {
                                                 const updated = premiacoesRows.map((r, i) =>
-                                                  i === idx ? { ...r, [key]: e.target.value } : r
+                                                  i === idx ? (r as string[]).map((c, j) => j === cellIdx ? e.target.value : c) : r
                                                 );
                                                 setPremiacoesRows(updated);
                                               }}
@@ -1610,7 +1639,7 @@ export default function App() {
                               </div>
                               <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
                                 <button
-                                  onClick={() => setPremiacoesRows(prev => [...prev, { col0: '', col1: '', col2: '', col3: '', col4: '' }])}
+                                  onClick={() => setPremiacoesRows(prev => [...prev, new Array(premiacoesCols.length).fill('')])}
                                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
                                 >
                                   <Plus size={14} />
@@ -1676,10 +1705,10 @@ export default function App() {
                                   <tbody>
                                     {consequenciasRows.map((row, idx) => (
                                       <tr key={idx} className="border-b border-stone-100 hover:bg-stone-50/50 transition-colors">
-                                        {(Object.keys(row) as (keyof typeof row)[]).map(key => (
-                                          <td key={key} className="px-3 py-1 align-top">
+                                        {(row as string[]).map((cell, cellIdx) => (
+                                          <td key={cellIdx} className="px-3 py-1 align-top">
                                             <textarea
-                                              value={row[key]}
+                                              value={cell}
                                               rows={1}
                                               ref={(el: HTMLTextAreaElement | null) => {
                                                 if (el) {
@@ -1689,7 +1718,7 @@ export default function App() {
                                               }}
                                               onChange={e => {
                                                 const updated = consequenciasRows.map((r, i) =>
-                                                  i === idx ? { ...r, [key]: e.target.value } : r
+                                                  i === idx ? (r as string[]).map((c, j) => j === cellIdx ? e.target.value : c) : r
                                                 );
                                                 setConsequenciasRows(updated);
                                               }}
@@ -1710,7 +1739,7 @@ export default function App() {
                               </div>
                               <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
                                 <button
-                                  onClick={() => setConsequenciasRows(prev => [...prev, { col0: '', col1: '', col2: '', col3: '', col4: '' }])}
+                                  onClick={() => setConsequenciasRows(prev => [...prev, new Array(consequenciasCols.length).fill('')])}
                                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
                                 >
                                   <Plus size={14} />
