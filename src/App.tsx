@@ -67,7 +67,10 @@ import {
   Pencil,
   Trash2,
   Check,
-  Settings
+  Settings,
+  TrendingUp,
+  Award,
+  Crown
 } from 'lucide-react';
 import { db, auth, storage, handleFirestoreError, OperationType } from './firebase';
 import { Room, Booking, BookingStatus, Challenge } from './types';
@@ -82,6 +85,14 @@ import { TermsModal } from './components/TermsModal';
 const cn = (...classes: (string | boolean | undefined)[]) => classes.filter(Boolean).join(' ');
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "bbrendaribeiroc@gmail.com";
+
+const QCOIN_SECTIONS = [
+  { id: 'pontuacao', title: 'Sistema de pontuação', icon: Trophy },
+  { id: 'estagios', title: 'Estágios e Thresholds de Progressão', icon: TrendingUp },
+  { id: 'ranking', title: 'Ranking Geral', icon: Crown },
+  { id: 'premiacoes', title: 'Premiações', icon: Award },
+  { id: 'consequencias', title: 'Consequências', icon: AlertTriangle },
+] as const;
 
 const DEFAULT_BUSINESS_HOURS = Array.from({ length: 21 }, (_, i) => {
   const hour = Math.floor(i / 2) + 8;
@@ -158,6 +169,11 @@ export default function App() {
   const [settingsSocialSite, setSettingsSocialSite] = useState('');
   const [socialSaving, setSocialSaving] = useState(false);
   const [selectedFounderDetail, setSelectedFounderDetail] = useState<any | null>(null);
+  const [qcoinSections, setQcoinSections] = useState<any[]>([]);
+  const [expandedQcoinCard, setExpandedQcoinCard] = useState<string | null>(null);
+  const [editingQcoinSection, setEditingQcoinSection] = useState<string | null>(null);
+  const [qcoinEditContent, setQcoinEditContent] = useState('');
+  const [savingQcoinSection, setSavingQcoinSection] = useState(false);
 
   const [indicarNome, setIndicarNome] = useState('');
   const [indicarEmpresa, setIndicarEmpresa] = useState('');
@@ -434,6 +450,11 @@ export default function App() {
       setNewsItems(newsData);
     }, (err) => handleFirestoreError(err, OperationType.LIST, 'news'));
 
+    const qcoinSectionsUnsubscribe = onSnapshot(collection(db, 'qcoin_sections'), (snapshot) => {
+      const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      setQcoinSections(data);
+    }, (err) => handleFirestoreError(err, OperationType.LIST, 'qcoin_sections'));
+
     let checkinsUnsubscribe = () => {};
     if (user) {
       const q = collection(db, 'checkins');
@@ -451,6 +472,7 @@ export default function App() {
       foundersUnsubscribe();
       challengesUnsubscribe();
       newsUnsubscribe();
+      qcoinSectionsUnsubscribe();
       checkinsUnsubscribe();
     };
   }, [user, founderData]);
@@ -494,6 +516,21 @@ export default function App() {
   const handleDeleteRule = async (id: string) => {
     await deleteDoc(doc(db, 'news', id));
     setDeletingRuleId(null);
+  };
+
+  const handleSaveQcoinSection = async (sectionId: string) => {
+    setSavingQcoinSection(true);
+    try {
+      await setDoc(doc(db, 'qcoin_sections', sectionId), {
+        content: qcoinEditContent,
+        updatedAt: serverTimestamp()
+      });
+      setEditingQcoinSection(null);
+    } catch (error) {
+      console.error('Error saving QCoin section:', error);
+    } finally {
+      setSavingQcoinSection(false);
+    }
   };
 
   const isAdmin = user?.email === ADMIN_EMAIL || founderData?.role === 'admin';
@@ -885,110 +922,262 @@ export default function App() {
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="grid grid-cols-1 gap-8">
                   {newsItems
-                    .filter(item => item.category === 'evento')
+                    .filter(item => item.category === 'evento' || item.category === 'aviso')
                     .sort((a, b) => {
-                      const dateA = a.eventDate?.toDate ? a.eventDate.toDate() : new Date(a.eventDate + 'T00:00:00');
-                      const dateB = b.eventDate?.toDate ? b.eventDate.toDate() : new Date(b.eventDate + 'T00:00:00');
-                      return dateB.getTime() - dateA.getTime();
+                      const secA = a.createdAt?.seconds ?? 0;
+                      const secB = b.createdAt?.seconds ?? 0;
+                      return secB - secA;
                     })
-                    .map((item, i) => (
-                    <div key={item.id || i} className="bg-white rounded-[40px] p-10 border border-stone-200 shadow-sm hover:shadow-xl transition-all group">
-                      <div className="flex items-center gap-4 mb-4">
-                        <span className="text-[10px] uppercase tracking-widest font-bold bg-stone-100 px-3 py-1 rounded-full text-stone-500">Evento</span>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400">
-                          {item.eventDate ? new Date(item.eventDate + 'T00:00:00').toLocaleDateString('pt-BR') : 
-                           item.createdAt?.seconds ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : ''}
-                        </span>
-                        {(item.startTime || item.endTime) && (
-                          <span className="text-[10px] uppercase tracking-widest font-bold text-amber-500 flex items-center gap-2">
-                            <Clock size={12} />
-                            <span>Início: {item.startTime || '--:--'}</span>
-                            {item.endTime && <span>Término: {item.endTime}</span>}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="text-2xl font-serif italic mb-4 group-hover:text-stone-600 transition-colors uppercase tracking-tight">{item.title}</h3>
-                      <p className="text-stone-500 leading-relaxed mb-6 whitespace-pre-wrap">{item.content}</p>
-                      
-                      <div className="flex flex-wrap gap-4 items-center justify-between">
-                        <button 
-                          onClick={() => {
-                            setActiveGeneralCategory('evento');
-                          }}
-                          className="text-xs font-bold uppercase tracking-widest text-stone-900 flex items-center gap-2 group-hover:gap-3 transition-all"
-                        >
-                          Detalhes do Evento <ArrowRight size={16} />
-                        </button>
+                    .map((item, i) => {
+                      const isAviso = item.category === 'aviso';
+                      return (
+                        <div key={item.id || i} className="bg-white rounded-[40px] p-10 border border-stone-200 shadow-sm hover:shadow-xl transition-all group">
+                          <div className="flex items-center gap-4 mb-4">
+                            {isAviso ? (
+                              <span className="text-[10px] uppercase tracking-widest font-bold bg-rose-50 px-3 py-1 rounded-full text-rose-500 flex items-center gap-1.5">
+                                <AlertTriangle size={10} />
+                                Aviso
+                              </span>
+                            ) : (
+                              <span className="text-[10px] uppercase tracking-widest font-bold bg-stone-100 px-3 py-1 rounded-full text-stone-500">Evento</span>
+                            )}
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400">
+                              {isAviso
+                                ? (item.createdAt?.seconds ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : '')
+                                : (item.eventDate ? new Date(item.eventDate + 'T00:00:00').toLocaleDateString('pt-BR') :
+                                   item.createdAt?.seconds ? new Date(item.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : '')}
+                            </span>
+                            {!isAviso && (item.startTime || item.endTime) && (
+                              <span className="text-[10px] uppercase tracking-widest font-bold text-amber-500 flex items-center gap-2">
+                                <Clock size={12} />
+                                <span>Início: {item.startTime || '--:--'}</span>
+                                {item.endTime && <span>Término: {item.endTime}</span>}
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="text-2xl font-serif italic mb-4 group-hover:text-stone-600 transition-colors uppercase tracking-tight">{item.title}</h3>
+                          <p className="text-stone-500 leading-relaxed mb-6 whitespace-pre-wrap">{item.content}</p>
 
-                        {item.attachmentUrl && (
-                          <a 
-                            href={item.attachmentUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-2 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold text-stone-600 hover:bg-stone-100 transition-all"
-                          >
-                            <Paperclip size={14} />
-                            {item.attachmentName || 'Ver Anexo'}
-                            <ExternalLink size={14} />
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {newsItems.filter(item => item.category === 'evento').length === 0 && (
+                          <div className="flex flex-wrap gap-4 items-center justify-between">
+                            <button
+                              onClick={() => {
+                                setActiveGeneralCategory(item.category);
+                              }}
+                              className="text-xs font-bold uppercase tracking-widest text-stone-900 flex items-center gap-2 group-hover:gap-3 transition-all"
+                            >
+                              {isAviso ? 'Ver Avisos' : 'Detalhes do Evento'} <ArrowRight size={16} />
+                            </button>
+
+                            {item.attachmentUrl && (
+                              <a
+                                href={item.attachmentUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold text-stone-600 hover:bg-stone-100 transition-all"
+                              >
+                                <Paperclip size={14} />
+                                {item.attachmentName || 'Ver Anexo'}
+                                <ExternalLink size={14} />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  {newsItems.filter(item => item.category === 'evento' || item.category === 'aviso').length === 0 && (
                     <div className="text-center py-20 bg-white rounded-[40px] border border-dashed border-stone-200">
-                      <p className="text-stone-400 italic">Nenhum evento publicado no momento.</p>
+                      <p className="text-stone-400 italic">Nenhum aviso ou evento publicado no momento.</p>
                     </div>
                   )}
                 </div>
               </div>
             ) : view === 'qcoin' ? (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                
-                <div className="bg-white rounded-[40px] border border-stone-200 shadow-sm overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr className="bg-stone-900 border-b border-stone-800">
-                          <th className="px-8 py-6 text-[10px] uppercase tracking-widest font-bold text-stone-400">Ação</th>
-                          <th className="px-8 py-6 text-[10px] uppercase tracking-widest font-bold text-stone-400 text-right">Pontuação</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[
-                          { action: "Check-in diário", points: "1" },
-                          { action: "Evento interno QDDO", points: "2" },
-                          { action: "Streak 5 dias consecutivos", points: "3 (bônus)" },
-                          { action: "Resolução de desafio aberto de outro founder", points: "5" },
-                          { action: "Indicação founder com fit para o hub", points: "5" },
-                          { action: "Aprovação de founder indicado por você", points: "10" },
-                          { action: "Mentoria espontânea (mín. 30 min)", points: "5" },
-                          { action: "Contribuição técnica ao app/site/infra QDDO", points: "8" },
-                          { action: "Realização do Desafio Mensal", points: "10" },
-                          { action: "Avançar estágio", points: "25" },
-                          { action: "Crescimento de faturamento MoM", points: "5" },
-                          { action: "Completar desafio de Mantenedor", points: "15" },
-                          { action: "Participar de hackathon corporativo", points: "10" },
-                          { action: "Vencer hackathon", points: "30 (bônus)" },
-                          { action: "Relatório mensal para mantenedor de sala", points: "8" },
-                          { action: "Convidado no podcast QDDO", points: "8" },
-                          { action: "Pitch no Demo Day", points: "10" }
-                        ].map((item, idx) => (
-                          <tr key={idx} className="border-b border-stone-50 hover:bg-stone-50/50 transition-colors group">
-                            <td className="px-8 py-6">
-                              <span className="font-bold text-stone-900 group-hover:text-stone-600 transition-colors">{item.action}</span>
-                            </td>
-                            <td className="px-8 py-6 text-right">
-                              <span className="inline-flex items-center justify-center min-w-[32px] h-8 px-3 bg-stone-100 rounded-full text-xs font-black text-stone-900 group-hover:bg-stone-900 group-hover:text-white transition-all">
-                                {item.points}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                {expandedQcoinCard ? (
+                  <div className="bg-white rounded-[40px] p-10 md:p-12 border border-stone-200 shadow-sm animate-in fade-in zoom-in-95 duration-300">
+                    <button
+                      onClick={() => { setExpandedQcoinCard(null); setEditingQcoinSection(null); }}
+                      className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 mb-8 flex items-center gap-2 transition-colors"
+                    >
+                      <ArrowRight size={16} className="rotate-180" />
+                      Voltar
+                    </button>
+
+                    {(() => {
+                      const section = QCOIN_SECTIONS.find(s => s.id === expandedQcoinCard);
+                      if (!section) return null;
+                      const Icon = section.icon;
+                      const sectionData = qcoinSections.find(s => s.id === expandedQcoinCard);
+
+                      return (
+                        <div>
+                          <div className="flex items-center justify-between mb-10">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-2xl bg-stone-100 flex items-center justify-center">
+                                <Icon size={22} className="text-stone-700" />
+                              </div>
+                              <h2 className="text-2xl md:text-3xl font-serif italic">{section.title}</h2>
+                            </div>
+                            {isAdmin && (
+                              editingQcoinSection === expandedQcoinCard ? (
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => setEditingQcoinSection(null)}
+                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
+                                  >
+                                    <X size={14} />
+                                    Cancelar
+                                  </button>
+                                  <button
+                                    onClick={() => handleSaveQcoinSection(expandedQcoinCard)}
+                                    disabled={savingQcoinSection}
+                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest bg-stone-900 text-white hover:bg-stone-700 transition-all disabled:opacity-50"
+                                  >
+                                    <Check size={14} />
+                                    {savingQcoinSection ? 'Salvando...' : 'Salvar'}
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => { setEditingQcoinSection(expandedQcoinCard); setQcoinEditContent(sectionData?.content || ''); }}
+                                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
+                                >
+                                  <Pencil size={14} />
+                                  {sectionData?.content ? 'Editar conteúdo' : 'Adicionar conteúdo'}
+                                </button>
+                              )
+                            )}
+                          </div>
+
+                          {/* Tabela de pontuação — sempre visível dentro da caixa "Sistema de pontuação" */}
+                          {expandedQcoinCard === 'pontuacao' && (
+                            <div className="mb-8 bg-white rounded-[40px] border border-stone-200 shadow-sm overflow-hidden">
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                  <thead>
+                                    <tr className="bg-stone-900 border-b border-stone-800">
+                                      <th className="px-8 py-6 text-[10px] uppercase tracking-widest font-bold text-stone-400">Ação</th>
+                                      <th className="px-8 py-6 text-[10px] uppercase tracking-widest font-bold text-stone-400 text-right">Pontuação</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {[
+                                      { action: "Check-in diário", points: "1" },
+                                      { action: "Evento interno QDDO", points: "2" },
+                                      { action: "Streak 5 dias consecutivos", points: "3 (bônus)" },
+                                      { action: "Resolução de desafio aberto de outro founder", points: "5" },
+                                      { action: "Indicação founder com fit para o hub", points: "5" },
+                                      { action: "Aprovação de founder indicado por você", points: "10" },
+                                      { action: "Mentoria espontânea (mín. 30 min)", points: "5" },
+                                      { action: "Contribuição técnica ao app/site/infra QDDO", points: "8" },
+                                      { action: "Realização do Desafio Mensal", points: "10" },
+                                      { action: "Avançar estágio", points: "25" },
+                                      { action: "Crescimento de faturamento MoM", points: "5" },
+                                      { action: "Completar desafio de Mantenedor", points: "15" },
+                                      { action: "Participar de hackathon corporativo", points: "10" },
+                                      { action: "Vencer hackathon", points: "30 (bônus)" },
+                                      { action: "Relatório mensal para mantenedor de sala", points: "8" },
+                                      { action: "Convidado no podcast QDDO", points: "8" },
+                                      { action: "Pitch no Demo Day", points: "10" }
+                                    ].map((item, idx) => (
+                                      <tr key={idx} className="border-b border-stone-50 hover:bg-stone-50/50 transition-colors group">
+                                        <td className="px-8 py-6">
+                                          <span className="font-bold text-stone-900 group-hover:text-stone-600 transition-colors">{item.action}</span>
+                                        </td>
+                                        <td className="px-8 py-6 text-right">
+                                          <span className="inline-flex items-center justify-center min-w-[32px] h-8 px-3 bg-stone-100 rounded-full text-xs font-black text-stone-900 group-hover:bg-stone-900 group-hover:text-white transition-all">
+                                            {item.points}
+                                          </span>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Área de edição (admin) */}
+                          {editingQcoinSection === expandedQcoinCard ? (
+                            <div>
+                              <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-3">
+                                {expandedQcoinCard === 'pontuacao' ? 'Conteúdo adicional' : 'Conteúdo'}
+                              </p>
+                              <textarea
+                                value={qcoinEditContent}
+                                onChange={e => setQcoinEditContent(e.target.value)}
+                                rows={12}
+                                className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-all resize-none"
+                                placeholder="Digite o conteúdo desta seção..."
+                              />
+                            </div>
+                          ) : sectionData?.content ? (
+                            <div>
+                              {expandedQcoinCard === 'pontuacao' && (
+                                <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-3">Conteúdo adicional</p>
+                              )}
+                              <p className="text-stone-600 leading-relaxed whitespace-pre-wrap">{sectionData.content}</p>
+                            </div>
+                          ) : (
+                            isAdmin ? (
+                              <div
+                                onClick={() => { setEditingQcoinSection(expandedQcoinCard); setQcoinEditContent(''); }}
+                                className="text-center py-14 border-2 border-dashed border-stone-200 rounded-3xl cursor-pointer hover:border-stone-400 hover:bg-stone-50 transition-all group"
+                              >
+                                <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:bg-stone-200 transition-all">
+                                  <Plus size={22} className="text-stone-400" />
+                                </div>
+                                <p className="text-stone-400 font-bold text-sm uppercase tracking-widest">Adicionar conteúdo</p>
+                              </div>
+                            ) : expandedQcoinCard !== 'pontuacao' ? (
+                              <div className="text-center py-12">
+                                <p className="text-stone-400 italic">Nenhum conteúdo disponível no momento.</p>
+                              </div>
+                            ) : null
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
-                </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {QCOIN_SECTIONS.map(section => {
+                      const Icon = section.icon;
+                      const sectionData = qcoinSections.find(s => s.id === section.id);
+                      const hasContent = !!(sectionData?.content) || section.id === 'pontuacao';
+
+                      return (
+                        <div
+                          key={section.id}
+                          onClick={() => setExpandedQcoinCard(section.id)}
+                          className="bg-white rounded-3xl border border-stone-200 shadow-sm hover:shadow-md hover:border-stone-300 transition-all cursor-pointer group"
+                        >
+                          <div className="p-6">
+                            <div className="flex items-start justify-between mb-5">
+                              <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center group-hover:bg-stone-900 transition-all">
+                                <Icon size={18} className="text-stone-600 group-hover:text-white transition-all" />
+                              </div>
+                              <ArrowRight size={16} className="text-stone-300 group-hover:text-stone-600 group-hover:translate-x-1 transition-all mt-1" />
+                            </div>
+                            <h3 className="font-bold text-stone-900 text-base mb-1">{section.title}</h3>
+                            {hasContent ? (
+                              <p className="text-xs text-stone-400">
+                                {section.id === 'pontuacao' ? '17 ações pontuadas' : 'Clique para ver'}
+                              </p>
+                            ) : isAdmin ? (
+                              <p className="text-xs text-stone-400 flex items-center gap-1">
+                                <Plus size={11} />
+                                Adicionar conteúdo
+                              </p>
+                            ) : (
+                              <p className="text-xs text-stone-400 italic">Em breve</p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             ) : view === 'general' ? (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -1084,6 +1273,37 @@ export default function App() {
                         <div className="flex flex-col lg:flex-row gap-4">
                           {/* Part 1: Eventos & Desafios (66%) */}
                           <div className="lg:w-[66%] flex flex-col gap-4">
+                            {/* Avisos */}
+                            {newsItems
+                              .filter(item => item.category === 'aviso')
+                              .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+                              .map((aviso, idx) => (
+                                <div key={aviso.id || idx} className="bg-white rounded-[32px] p-5 border border-stone-200 shadow-sm hover:shadow-md transition-all group">
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <AlertTriangle className="text-amber-500 shrink-0" size={18} />
+                                    <h4 className="text-base font-serif italic text-stone-900">Aviso</h4>
+                                    <span className="ml-auto text-[10px] font-bold uppercase tracking-widest text-stone-400">
+                                      {aviso.createdAt?.seconds ? new Date(aviso.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : ''}
+                                    </span>
+                                  </div>
+                                  <div className="p-3 bg-stone-50 rounded-2xl border border-stone-100 hover:border-stone-300 transition-all">
+                                    <h5 className="font-bold text-stone-900 text-sm mb-1 group-hover:text-amber-600 transition-colors">{aviso.title}</h5>
+                                    <p className="text-stone-500 text-xs line-clamp-3 leading-relaxed">{aviso.content}</p>
+                                    {aviso.attachmentUrl && (
+                                      <a
+                                        href={aviso.attachmentUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-bold text-stone-500 hover:text-stone-700 transition-colors"
+                                      >
+                                        <Paperclip size={11} />
+                                        {aviso.attachmentName || 'Ver Anexo'}
+                                      </a>
+                                    )}
+                                  </div>
+                                </div>
+                              ))
+                            }
                             {/* Eventos da Semana */}
                             <div className="bg-white rounded-[32px] p-5 border border-stone-200 shadow-sm flex flex-col">
                               <div className="flex items-center justify-between mb-3">
