@@ -1275,11 +1275,12 @@ export default function App() {
                                           <input
                                             type="text"
                                             value={col}
+                                            readOnly={!isAdmin}
                                             onChange={e => {
                                               const updated = pontuacaoCols.map((c: string, i: number) => i === colIdx ? e.target.value : c);
                                               setPontuacaoCols(updated);
                                             }}
-                                            className="w-full px-2 py-1 bg-transparent border border-transparent rounded-lg text-[10px] uppercase tracking-widest font-bold text-stone-400 placeholder-stone-600 hover:border-stone-700 focus:border-stone-500 focus:outline-none focus:bg-stone-800 transition-all"
+                                            className={`w-full px-2 py-1 bg-transparent border border-transparent rounded-lg text-[10px] uppercase tracking-widest font-bold text-stone-400 placeholder-stone-600 transition-all${isAdmin ? ' hover:border-stone-700 focus:border-stone-500 focus:outline-none focus:bg-stone-800' : ' cursor-default'}`}
                                             placeholder="Título"
                                           />
                                           {isAdmin && (
@@ -1310,6 +1311,7 @@ export default function App() {
                                             <textarea
                                               value={cell}
                                               rows={1}
+                                              readOnly={!isAdmin}
                                               ref={(el: HTMLTextAreaElement | null) => {
                                                 if (el) {
                                                   el.style.height = 'auto';
@@ -1327,7 +1329,7 @@ export default function App() {
                                                 t.style.height = 'auto';
                                                 t.style.height = t.scrollHeight + 'px';
                                               }}
-                                              className="w-full px-3 py-1 bg-transparent border border-transparent rounded-xl text-sm text-stone-700 placeholder-stone-300 hover:border-stone-200 focus:border-stone-400 focus:outline-none focus:bg-white transition-all resize-none overflow-hidden"
+                                              className={`w-full px-3 py-1 bg-transparent border border-transparent rounded-xl text-sm text-stone-700 placeholder-stone-300 transition-all resize-none overflow-hidden${isAdmin ? ' hover:border-stone-200 focus:border-stone-400 focus:outline-none focus:bg-white' : ' cursor-default'}`}
                                               placeholder="—"
                                             />
                                           </td>
@@ -1337,15 +1339,15 @@ export default function App() {
                                   </tbody>
                                 </table>
                               </div>
-                              <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
-                                <button
-                                  onClick={() => setPontuacaoRows(prev => [...prev, new Array(pontuacaoCols.length).fill('')])}
-                                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
-                                >
-                                  <Plus size={14} />
-                                  Nova linha
-                                </button>
-                                {isAdmin && (
+                              {isAdmin && (
+                                <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
+                                  <button
+                                    onClick={() => setPontuacaoRows(prev => [...prev, new Array(pontuacaoCols.length).fill('')])}
+                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
+                                  >
+                                    <Plus size={14} />
+                                    Nova linha
+                                  </button>
                                   <button
                                     onClick={() => handleSaveQcoinTable('pontuacao')}
                                     disabled={savingQcoinSection}
@@ -1354,8 +1356,8 @@ export default function App() {
                                     <Check size={14} />
                                     {savingQcoinSection ? 'Salvando...' : qcoinTableSaveStatus === 'success' ? 'Tabela salva' : qcoinTableSaveStatus === 'error' ? 'Erro ao salvar tabela' : 'Salvar tabela'}
                                   </button>
-                                )}
-                              </div>
+                                </div>
+                              )}
                             </div>
                           )}
 
@@ -1375,11 +1377,12 @@ export default function App() {
                                           <input
                                             type="text"
                                             value={col}
+                                            readOnly={!isAdmin}
                                             onChange={e => {
                                               const updated = estagiosCols.map((c: string, i: number) => i === colIdx ? e.target.value : c);
                                               setEstagiosCols(updated);
                                             }}
-                                            className="w-full px-2 py-1 bg-transparent border border-transparent rounded-lg text-[10px] uppercase tracking-widest font-bold text-stone-400 placeholder-stone-600 hover:border-stone-700 focus:border-stone-500 focus:outline-none focus:bg-stone-800 transition-all"
+                                            className={`w-full px-2 py-1 bg-transparent border border-transparent rounded-lg text-[10px] uppercase tracking-widest font-bold text-stone-400 placeholder-stone-600 transition-all${isAdmin ? ' hover:border-stone-700 focus:border-stone-500 focus:outline-none focus:bg-stone-800' : ' cursor-default'}`}
                                             placeholder="Título"
                                           />
                                           {isAdmin && (
@@ -1410,6 +1413,7 @@ export default function App() {
                                             <textarea
                                               value={cell}
                                               rows={1}
+                                              readOnly={!isAdmin}
                                               ref={(el: HTMLTextAreaElement | null) => {
                                                 if (el) {
                                                   el.style.height = 'auto';
@@ -1427,7 +1431,7 @@ export default function App() {
                                                 t.style.height = 'auto';
                                                 t.style.height = t.scrollHeight + 'px';
                                               }}
-                                              className="w-full px-3 py-1 bg-transparent border border-transparent rounded-xl text-sm text-stone-700 placeholder-stone-300 hover:border-stone-200 focus:border-stone-400 focus:outline-none focus:bg-white transition-all resize-none overflow-hidden"
+                                              className={`w-full px-3 py-1 bg-transparent border border-transparent rounded-xl text-sm text-stone-700 placeholder-stone-300 transition-all resize-none overflow-hidden${isAdmin ? ' hover:border-stone-200 focus:border-stone-400 focus:outline-none focus:bg-white' : ' cursor-default'}`}
                                               placeholder="—"
                                             />
                                           </td>
@@ -1437,15 +1441,15 @@ export default function App() {
                                   </tbody>
                                 </table>
                               </div>
-                              <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
-                                <button
-                                  onClick={() => setEstagiosRows(prev => [...prev, new Array(estagiosCols.length).fill('')])}
-                                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
-                                >
-                                  <Plus size={14} />
-                                  Nova linha
-                                </button>
-                                {isAdmin && (
+                              {isAdmin && (
+                                <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
+                                  <button
+                                    onClick={() => setEstagiosRows(prev => [...prev, new Array(estagiosCols.length).fill('')])}
+                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
+                                  >
+                                    <Plus size={14} />
+                                    Nova linha
+                                  </button>
                                   <button
                                     onClick={() => handleSaveQcoinTable('estagios')}
                                     disabled={savingQcoinSection}
@@ -1454,8 +1458,8 @@ export default function App() {
                                     <Check size={14} />
                                     {savingQcoinSection ? 'Salvando...' : qcoinTableSaveStatus === 'success' ? 'Tabela salva' : qcoinTableSaveStatus === 'error' ? 'Erro ao salvar tabela' : 'Salvar tabela'}
                                   </button>
-                                )}
-                              </div>
+                                </div>
+                              )}
                             </div>
                           )}
 
@@ -1475,11 +1479,12 @@ export default function App() {
                                           <input
                                             type="text"
                                             value={col}
+                                            readOnly={!isAdmin}
                                             onChange={e => {
                                               const updated = rankingCols.map((c: string, i: number) => i === colIdx ? e.target.value : c);
                                               setRankingCols(updated);
                                             }}
-                                            className="w-full px-2 py-1 bg-transparent border border-transparent rounded-lg text-[10px] uppercase tracking-widest font-bold text-stone-400 placeholder-stone-600 hover:border-stone-700 focus:border-stone-500 focus:outline-none focus:bg-stone-800 transition-all"
+                                            className={`w-full px-2 py-1 bg-transparent border border-transparent rounded-lg text-[10px] uppercase tracking-widest font-bold text-stone-400 placeholder-stone-600 transition-all${isAdmin ? ' hover:border-stone-700 focus:border-stone-500 focus:outline-none focus:bg-stone-800' : ' cursor-default'}`}
                                             placeholder="Título"
                                           />
                                           {isAdmin && (
@@ -1510,6 +1515,7 @@ export default function App() {
                                             <textarea
                                               value={cell}
                                               rows={1}
+                                              readOnly={!isAdmin}
                                               ref={(el: HTMLTextAreaElement | null) => {
                                                 if (el) {
                                                   el.style.height = 'auto';
@@ -1527,7 +1533,7 @@ export default function App() {
                                                 t.style.height = 'auto';
                                                 t.style.height = t.scrollHeight + 'px';
                                               }}
-                                              className="w-full px-3 py-1 bg-transparent border border-transparent rounded-xl text-sm text-stone-700 placeholder-stone-300 hover:border-stone-200 focus:border-stone-400 focus:outline-none focus:bg-white transition-all resize-none overflow-hidden"
+                                              className={`w-full px-3 py-1 bg-transparent border border-transparent rounded-xl text-sm text-stone-700 placeholder-stone-300 transition-all resize-none overflow-hidden${isAdmin ? ' hover:border-stone-200 focus:border-stone-400 focus:outline-none focus:bg-white' : ' cursor-default'}`}
                                               placeholder="—"
                                             />
                                           </td>
@@ -1537,15 +1543,15 @@ export default function App() {
                                   </tbody>
                                 </table>
                               </div>
-                              <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
-                                <button
-                                  onClick={() => setRankingRows(prev => [...prev, new Array(rankingCols.length).fill('')])}
-                                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
-                                >
-                                  <Plus size={14} />
-                                  Nova linha
-                                </button>
-                                {isAdmin && (
+                              {isAdmin && (
+                                <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
+                                  <button
+                                    onClick={() => setRankingRows(prev => [...prev, new Array(rankingCols.length).fill('')])}
+                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
+                                  >
+                                    <Plus size={14} />
+                                    Nova linha
+                                  </button>
                                   <button
                                     onClick={() => handleSaveQcoinTable('ranking')}
                                     disabled={savingQcoinSection}
@@ -1554,8 +1560,8 @@ export default function App() {
                                     <Check size={14} />
                                     {savingQcoinSection ? 'Salvando...' : qcoinTableSaveStatus === 'success' ? 'Tabela salva' : qcoinTableSaveStatus === 'error' ? 'Erro ao salvar tabela' : 'Salvar tabela'}
                                   </button>
-                                )}
-                              </div>
+                                </div>
+                              )}
                             </div>
                           )}
 
@@ -1575,11 +1581,12 @@ export default function App() {
                                           <input
                                             type="text"
                                             value={col}
+                                            readOnly={!isAdmin}
                                             onChange={e => {
                                               const updated = premiacoesCols.map((c: string, i: number) => i === colIdx ? e.target.value : c);
                                               setPremiacoesCols(updated);
                                             }}
-                                            className="w-full px-2 py-1 bg-transparent border border-transparent rounded-lg text-[10px] uppercase tracking-widest font-bold text-stone-400 placeholder-stone-600 hover:border-stone-700 focus:border-stone-500 focus:outline-none focus:bg-stone-800 transition-all"
+                                            className={`w-full px-2 py-1 bg-transparent border border-transparent rounded-lg text-[10px] uppercase tracking-widest font-bold text-stone-400 placeholder-stone-600 transition-all${isAdmin ? ' hover:border-stone-700 focus:border-stone-500 focus:outline-none focus:bg-stone-800' : ' cursor-default'}`}
                                             placeholder="Título"
                                           />
                                           {isAdmin && (
@@ -1610,6 +1617,7 @@ export default function App() {
                                             <textarea
                                               value={cell}
                                               rows={1}
+                                              readOnly={!isAdmin}
                                               ref={(el: HTMLTextAreaElement | null) => {
                                                 if (el) {
                                                   el.style.height = 'auto';
@@ -1627,7 +1635,7 @@ export default function App() {
                                                 t.style.height = 'auto';
                                                 t.style.height = t.scrollHeight + 'px';
                                               }}
-                                              className="w-full px-3 py-1 bg-transparent border border-transparent rounded-xl text-sm text-stone-700 placeholder-stone-300 hover:border-stone-200 focus:border-stone-400 focus:outline-none focus:bg-white transition-all resize-none overflow-hidden"
+                                              className={`w-full px-3 py-1 bg-transparent border border-transparent rounded-xl text-sm text-stone-700 placeholder-stone-300 transition-all resize-none overflow-hidden${isAdmin ? ' hover:border-stone-200 focus:border-stone-400 focus:outline-none focus:bg-white' : ' cursor-default'}`}
                                               placeholder="—"
                                             />
                                           </td>
@@ -1637,15 +1645,15 @@ export default function App() {
                                   </tbody>
                                 </table>
                               </div>
-                              <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
-                                <button
-                                  onClick={() => setPremiacoesRows(prev => [...prev, new Array(premiacoesCols.length).fill('')])}
-                                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
-                                >
-                                  <Plus size={14} />
-                                  Nova linha
-                                </button>
-                                {isAdmin && (
+                              {isAdmin && (
+                                <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
+                                  <button
+                                    onClick={() => setPremiacoesRows(prev => [...prev, new Array(premiacoesCols.length).fill('')])}
+                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
+                                  >
+                                    <Plus size={14} />
+                                    Nova linha
+                                  </button>
                                   <button
                                     onClick={() => handleSaveQcoinTable('premiacoes')}
                                     disabled={savingQcoinSection}
@@ -1654,8 +1662,8 @@ export default function App() {
                                     <Check size={14} />
                                     {savingQcoinSection ? 'Salvando...' : qcoinTableSaveStatus === 'success' ? 'Tabela salva' : qcoinTableSaveStatus === 'error' ? 'Erro ao salvar tabela' : 'Salvar tabela'}
                                   </button>
-                                )}
-                              </div>
+                                </div>
+                              )}
                             </div>
                           )}
 
@@ -1675,11 +1683,12 @@ export default function App() {
                                           <input
                                             type="text"
                                             value={col}
+                                            readOnly={!isAdmin}
                                             onChange={e => {
                                               const updated = consequenciasCols.map((c: string, i: number) => i === colIdx ? e.target.value : c);
                                               setConsequenciasCols(updated);
                                             }}
-                                            className="w-full px-2 py-1 bg-transparent border border-transparent rounded-lg text-[10px] uppercase tracking-widest font-bold text-stone-400 placeholder-stone-600 hover:border-stone-700 focus:border-stone-500 focus:outline-none focus:bg-stone-800 transition-all"
+                                            className={`w-full px-2 py-1 bg-transparent border border-transparent rounded-lg text-[10px] uppercase tracking-widest font-bold text-stone-400 placeholder-stone-600 transition-all${isAdmin ? ' hover:border-stone-700 focus:border-stone-500 focus:outline-none focus:bg-stone-800' : ' cursor-default'}`}
                                             placeholder="Título"
                                           />
                                           {isAdmin && (
@@ -1710,6 +1719,7 @@ export default function App() {
                                             <textarea
                                               value={cell}
                                               rows={1}
+                                              readOnly={!isAdmin}
                                               ref={(el: HTMLTextAreaElement | null) => {
                                                 if (el) {
                                                   el.style.height = 'auto';
@@ -1727,7 +1737,7 @@ export default function App() {
                                                 t.style.height = 'auto';
                                                 t.style.height = t.scrollHeight + 'px';
                                               }}
-                                              className="w-full px-3 py-1 bg-transparent border border-transparent rounded-xl text-sm text-stone-700 placeholder-stone-300 hover:border-stone-200 focus:border-stone-400 focus:outline-none focus:bg-white transition-all resize-none overflow-hidden"
+                                              className={`w-full px-3 py-1 bg-transparent border border-transparent rounded-xl text-sm text-stone-700 placeholder-stone-300 transition-all resize-none overflow-hidden${isAdmin ? ' hover:border-stone-200 focus:border-stone-400 focus:outline-none focus:bg-white' : ' cursor-default'}`}
                                               placeholder="—"
                                             />
                                           </td>
@@ -1737,15 +1747,15 @@ export default function App() {
                                   </tbody>
                                 </table>
                               </div>
-                              <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
-                                <button
-                                  onClick={() => setConsequenciasRows(prev => [...prev, new Array(consequenciasCols.length).fill('')])}
-                                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
-                                >
-                                  <Plus size={14} />
-                                  Nova linha
-                                </button>
-                                {isAdmin && (
+                              {isAdmin && (
+                                <div className="px-5 py-3 border-t border-stone-100 flex items-center justify-between">
+                                  <button
+                                    onClick={() => setConsequenciasRows(prev => [...prev, new Array(consequenciasCols.length).fill('')])}
+                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-all"
+                                  >
+                                    <Plus size={14} />
+                                    Nova linha
+                                  </button>
                                   <button
                                     onClick={() => handleSaveQcoinTable('consequencias')}
                                     disabled={savingQcoinSection}
@@ -1754,8 +1764,8 @@ export default function App() {
                                     <Check size={14} />
                                     {savingQcoinSection ? 'Salvando...' : qcoinTableSaveStatus === 'success' ? 'Tabela salva' : qcoinTableSaveStatus === 'error' ? 'Erro ao salvar tabela' : 'Salvar tabela'}
                                   </button>
-                                )}
-                              </div>
+                                </div>
+                              )}
                             </div>
                           )}
 
