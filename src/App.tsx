@@ -1251,13 +1251,13 @@ export default function App() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {newsItems.filter(item => item.category === 'regras').length > 0 ? (
                     newsItems
                       .filter(item => item.category === 'regras')
                       .sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0))
                       .map((item, index) => (
-                        <div key={item.id} className="bg-white rounded-[40px] p-10 border border-stone-200 shadow-sm hover:shadow-xl transition-all">
+                        <div key={item.id} className="bg-white rounded-[30px] p-6 border border-stone-200 shadow-sm hover:shadow-xl transition-all">
                           {editingRuleId === item.id ? (
                             <div className="space-y-4">
                               <input
@@ -1290,8 +1290,8 @@ export default function App() {
                             </div>
                           ) : (
                             <>
-                              <div className="flex justify-between items-start mb-6">
-                                <h3 className="text-2xl font-serif italic text-amber-600">
+                              <div className="flex justify-between items-start mb-4">
+                                <h3 className="text-xl font-serif italic text-amber-600">
                                   {index + 1}. {item.title}
                                 </h3>
                                 {isAdmin && (
