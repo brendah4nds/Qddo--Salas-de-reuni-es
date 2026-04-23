@@ -377,7 +377,7 @@ export default function App() {
 
   const openProfileModal = () => {
     setProfileName(founderData?.name || user?.displayName || '');
-    setProfileUsername(founderData?.username || '');
+    setProfileUsername((founderData?.username || '').replace(/^@/, ''));
     setProfileBirthDay(founderData?.birthDay || '');
     setProfileBirthMonth(founderData?.birthMonth || '');
     setProfileBirthYear(founderData?.birthYear || '');
@@ -1602,7 +1602,7 @@ export default function App() {
                                           </div>
                                           <div>
                                             <p className="text-sm font-bold text-stone-900 group-hover:text-amber-600 transition-colors line-clamp-1">{item.name}</p>
-                                            <p className="text-overline text-stone-400">@{item.username}</p>
+                                            <p className="text-xs text-stone-400">@{item.username?.replace(/^@/, '')}</p>
                                           </div>
                                         </div>
                                         <div className="text-right shrink-0">
@@ -2410,7 +2410,7 @@ export default function App() {
                                       )}
                                       <div>
                                         <p className="text-xs font-bold text-stone-900 line-clamp-1">{item.name}</p>
-                                        <p className="text-overline text-stone-400">@{item.username}</p>
+                                        <p className="text-xs text-stone-400">@{item.username?.replace(/^@/, '')}</p>
                                       </div>
                                     </div>
                                     <div className="text-right">
@@ -2431,7 +2431,7 @@ export default function App() {
                                 <Trophy size={80} />
                               </div>
                               <span className="text-overline uppercase tracking-widest font-bold text-amber-100 mb-1 relative z-10">Seu Score QDDO</span>
-                              <div className="text-h1 font-sans mb-0.5 relative z-10">{userScore}</div>
+                              <div className="text-[3rem] font-black leading-none mb-0.5 relative z-10">{userScore}</div>
                               <span className="text-xs font-bold text-amber-100 relative z-10">pontos este mês</span>
                               {userRankPosition > 0 && (
                                 <span className="text-overline text-amber-200 relative z-10 mt-0.5">#{userRankPosition}º no ranking</span>
@@ -2553,11 +2553,11 @@ export default function App() {
         </main>
       </div>
 
-      <footer className="border-t border-stone-200 py-2 md:py-6 bg-white z-50">
+      <footer className="border-t border-stone-100 py-1 bg-white z-50">
         <div className="max-w-[1600px] mx-auto px-4 md:px-6 text-center">
-          <p className="text-stone-300 md:text-stone-400 text-overline uppercase tracking-widest font-medium md:font-bold">
-            <span className="hidden md:inline">© 2026 qddo - Gestão Inteligente de Espaços - Brenda Ribeiro</span>
-            <span className="md:hidden">© 2026 qddo</span>
+          <p className="text-stone-300 text-caption leading-none">
+            <span className="hidden md:inline">© 2026 Qddo - Gestão inteligente de espaços - Brenda Ribeiro</span>
+            <span className="md:hidden">© 2026 Qddo</span>
           </p>
         </div>
       </footer>
@@ -3171,7 +3171,7 @@ export default function App() {
               </div>
               <h3 className="text-h3 font-sans text-stone-900 leading-tight">{selectedFounderDetail.name}</h3>
               {selectedFounderDetail.username && (
-                <p className="text-xs text-stone-400 font-bold mt-0.5">@{selectedFounderDetail.username}</p>
+                <p className="text-xs text-stone-400 font-bold mt-0.5">@{selectedFounderDetail.username?.replace(/^@/, '')}</p>
               )}
               {selectedFounderDetail.company?.name && (
                 <p className="text-sm text-stone-500 mt-1">{selectedFounderDetail.company.name}</p>
