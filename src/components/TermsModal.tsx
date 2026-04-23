@@ -12,11 +12,11 @@ export function TermsModal({ isOpen, onClose, onAccept }: TermsModalProps) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-2xl rounded-[40px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
+      <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
         {/* Header */}
         <div className="px-8 py-6 border-b border-stone-100 flex items-center justify-between bg-stone-50">
           <div>
-            <h2 className="text-2xl font-serif italic text-stone-900">Termos e Autorizações</h2>
+            <h2 className="text-h2 font-sans text-stone-900">Termos e Autorizações</h2>
             <p className="text-stone-500 text-xs uppercase tracking-widest font-bold mt-1">Pendência de Cadastro</p>
           </div>
           <button 
@@ -82,11 +82,11 @@ export function TermsModal({ isOpen, onClose, onAccept }: TermsModalProps) {
         <div className="p-8 border-t border-stone-100 bg-stone-50">
           <button
             onClick={onAccept}
-            className="w-full bg-stone-900 text-white py-4 rounded-2xl font-bold hover:bg-stone-800 transition-all shadow-xl shadow-stone-900/20 text-lg"
+            className="w-full bg-primary text-white py-4 rounded-lg font-bold hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 text-lg"
           >
             Aceitar Termos e Autorizações
           </button>
-          <p className="text-center text-stone-400 text-[10px] mt-4 uppercase tracking-tighter">
+          <p className="text-center text-stone-400 text-overline mt-4 uppercase tracking-tighter">
             Ao clicar em aceitar, você confirma que leu e concorda com todos os pontos acima.
           </p>
         </div>

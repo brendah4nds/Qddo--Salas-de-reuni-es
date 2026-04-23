@@ -86,6 +86,7 @@ export function AdminPanel({
     eventDate: '',
     startTime: '',
     endTime: '',
+    imageUrl: '',
     attachmentUrl: '',
     attachmentName: '',
     attachmentType: '' as 'pdf' | 'png' | ''
@@ -120,11 +121,11 @@ export function AdminPanel({
         <div className="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-8">
           <Settings size={40} className="text-stone-400" />
         </div>
-        <h2 className="text-3xl font-serif italic mb-4">Área Administrativa</h2>
+        <h2 className="text-h1 font-sans mb-4">Área Administrativa</h2>
         <p className="text-stone-500 mb-10 leading-relaxed">Acesse para gerenciar agendamentos, salas e configurações do sistema.</p>
         <button 
           onClick={onLogin}
-          className="w-full bg-stone-900 text-white py-4 rounded-xl font-semibold hover:bg-stone-800 transition-all flex items-center justify-center gap-3"
+          className="w-full bg-primary text-white py-4 rounded-md font-semibold hover:bg-primary/90 transition-all flex items-center justify-center gap-3"
         >
           <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="" />
           Entrar com Google
@@ -139,7 +140,7 @@ export function AdminPanel({
         <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
           <AlertCircle size={32} />
         </div>
-        <h2 className="text-2xl font-serif italic mb-2">Acesso Negado</h2>
+        <h2 className="text-h2 font-sans mb-2">Acesso Negado</h2>
         <p className="text-stone-500 mb-8">Você não tem permissão para acessar esta área.</p>
         <button onClick={() => signOut(auth)} className="text-stone-900 underline font-semibold">Sair</button>
       </div>
@@ -320,13 +321,14 @@ export function AdminPanel({
         });
       }
 
-      setNewNews({ 
-        title: '', 
-        content: '', 
-        category: 'aviso', 
-        eventDate: '', 
-        startTime: '', 
+      setNewNews({
+        title: '',
+        content: '',
+        category: 'aviso',
+        eventDate: '',
+        startTime: '',
         endTime: '',
+        imageUrl: '',
         attachmentUrl: '',
         attachmentName: '',
         attachmentType: ''
@@ -346,6 +348,7 @@ export function AdminPanel({
       eventDate: item.eventDate?.toDate ? item.eventDate.toDate().toISOString().split('T')[0] : (item.eventDate || ''),
       startTime: item.startTime || '',
       endTime: item.endTime || '',
+      imageUrl: item.imageUrl || '',
       attachmentUrl: item.attachmentUrl || '',
       attachmentName: item.attachmentName || '',
       attachmentType: item.attachmentType || ''
@@ -409,17 +412,17 @@ export function AdminPanel({
     <div className="space-y-8">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h2 className="text-3xl md:text-4xl font-serif italic mb-1">Painel de Controle</h2>
+          <h2 className="text-h1 font-sans mb-1">Painel de Controle</h2>
           <p className="text-stone-500 text-sm md:text-base">Gerencie todos os agendamentos e salas do sistema.</p>
         </div>
         <div className="flex gap-3 shrink-0">
-          <div className="bg-white px-4 py-2.5 md:px-6 md:py-3 rounded-2xl border border-stone-200 shadow-sm flex flex-col">
-            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400">Total Reservas</span>
-            <span className="text-xl md:text-2xl font-serif italic">{bookings.length}</span>
+          <div className="bg-white px-4 py-2.5 md:px-6 md:py-3 rounded-lg border border-stone-200 shadow-sm flex flex-col">
+            <span className="text-overline uppercase tracking-widest font-bold text-stone-400">Total Reservas</span>
+            <span className="text-h3 md:text-h2 font-sans">{bookings.length}</span>
           </div>
-          <div className="bg-white px-4 py-2.5 md:px-6 md:py-3 rounded-2xl border border-stone-200 shadow-sm flex flex-col">
-            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400">Salas Ativas</span>
-            <span className="text-xl md:text-2xl font-serif italic">{rooms.length}</span>
+          <div className="bg-white px-4 py-2.5 md:px-6 md:py-3 rounded-lg border border-stone-200 shadow-sm flex flex-col">
+            <span className="text-overline uppercase tracking-widest font-bold text-stone-400">Salas Ativas</span>
+            <span className="text-h3 md:text-h2 font-sans">{rooms.length}</span>
           </div>
         </div>
       </header>
@@ -452,7 +455,7 @@ export function AdminPanel({
         >
           Indicações
           {indicacoes.filter((i: any) => !i.status || i.status === 'pendente').length > 0 && (
-            <span className="bg-amber-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+            <span className="bg-primary text-white text-overline font-bold rounded-full w-5 h-5 flex items-center justify-center">
               {indicacoes.filter((i: any) => !i.status || i.status === 'pendente').length}
             </span>
           )}
@@ -460,15 +463,15 @@ export function AdminPanel({
       </div>
 
       {adminTab === 'bookings' && (
-        <section className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden animate-in fade-in duration-500">
+        <section className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden animate-in fade-in duration-500">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-stone-50 border-b border-stone-100">
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Data e Hora</th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Sala</th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Usuário</th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400 text-right">Ações</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Data e Hora</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Sala</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Usuário</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400 text-right">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -481,7 +484,7 @@ export function AdminPanel({
                         <div className="text-xs text-stone-400">{booking.startTime} - {booking.endTime}</div>
                       </td>
                       <td className="px-8 py-6">
-                        <div className="font-serif italic text-stone-700">{room?.name || 'Sala excluída'}</div>
+                        <div className="font-sans text-stone-700">{room?.name || 'Sala excluída'}</div>
                       </td>
                       <td className="px-8 py-6">
                         <div className="font-bold text-stone-900">{booking.userName}</div>
@@ -490,7 +493,7 @@ export function AdminPanel({
                       <td className="px-8 py-6 text-right">
                         <button 
                           onClick={() => handleDelete(booking.id)}
-                          className="inline-flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-xl transition-all font-bold text-xs"
+                          className="inline-flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-md transition-all font-bold text-xs"
                         >
                           <Trash2 size={14} />
                           <span>Cancelar</span>
@@ -501,7 +504,7 @@ export function AdminPanel({
                 })}
                 {bookings.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-8 py-20 text-center text-stone-400 italic">Nenhum agendamento encontrado.</td>
+                    <td colSpan={4} className="px-8 py-20 text-center text-stone-400">Nenhum agendamento encontrado.</td>
                   </tr>
                 )}
               </tbody>
@@ -511,16 +514,16 @@ export function AdminPanel({
       )}
 
       {adminTab === 'founders' && (
-        <section className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden animate-in fade-in duration-500">
+        <section className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden animate-in fade-in duration-500">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-stone-50 border-b border-stone-100">
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Nome</th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Empresa</th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Categoria</th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Role</th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400 text-right">Ações</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Nome</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Empresa</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Categoria</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Role</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400 text-right">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -531,7 +534,7 @@ export function AdminPanel({
                       <div className="text-xs text-stone-400">@{founder.username}</div>
                     </td>
                     <td className="px-8 py-6">
-                      <div className="font-serif italic text-stone-700">{founder.company?.name || 'N/A'}</div>
+                      <div className="font-sans text-stone-700">{founder.company?.name || 'N/A'}</div>
                     </td>
                     <td className="px-8 py-6">
                       <select
@@ -543,7 +546,7 @@ export function AdminPanel({
                             company: { ...founder.company, tipo: novoTipo }
                           });
                         }}
-                        className="px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-700 focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-all appearance-none cursor-pointer"
+                        className="px-3 py-2 bg-stone-50 border border-stone-200 rounded-md text-xs font-medium text-stone-700 focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-primary transition-all appearance-none cursor-pointer"
                       >
                         <option value="">Sem categoria</option>
                         <option value="HealthTech">HealthTech</option>
@@ -556,8 +559,8 @@ export function AdminPanel({
                     </td>
                     <td className="px-8 py-6">
                       <span className={cn(
-                        "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
-                        founder.role === 'admin' ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-400"
+                        "px-3 py-1 rounded-full text-overline font-bold uppercase tracking-wider",
+                        founder.role === 'admin' ? "bg-primary text-white" : "bg-stone-100 text-stone-400"
                       )}>
                         {founder.role || 'user'}
                       </span>
@@ -587,7 +590,7 @@ export function AdminPanel({
                         <button
                           onClick={() => handleOpenEditFounder(founder)}
                           title="Editar perfil"
-                          className="p-2 text-stone-500 hover:text-stone-900 hover:bg-stone-100 rounded-xl transition-all"
+                          className="p-2 text-stone-500 hover:text-stone-900 hover:bg-stone-100 rounded-md transition-all"
                         >
                           <Pencil size={15} />
                         </button>
@@ -595,7 +598,7 @@ export function AdminPanel({
                           <button
                             onClick={() => handleDeleteFounder(founder)}
                             title="Excluir conta"
-                            className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                            className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
                           >
                             <Trash2 size={15} />
                           </button>
@@ -611,16 +614,16 @@ export function AdminPanel({
       )}
 
       {adminTab === 'challenges' && (
-        <section className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden animate-in fade-in duration-500">
+        <section className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden animate-in fade-in duration-500">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-stone-50 border-b border-stone-100">
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Desafio</th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Tipo</th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Status</th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Autor</th>
-                  <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400 text-right">Ações</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Desafio</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Tipo</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Status</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Autor</th>
+                  <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400 text-right">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -640,20 +643,20 @@ export function AdminPanel({
                       </td>
                       <td className="px-8 py-6">
                         <div className={cn(
-                          "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
-                          challenge.status === 'completed' ? "bg-emerald-100 text-emerald-600" : "bg-amber-100 text-amber-600"
+                          "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-overline font-bold uppercase tracking-widest",
+                          challenge.status === 'completed' ? "bg-emerald-100 text-emerald-600" : "bg-terracota-100 text-primary"
                         )}>
                           {challenge.status === 'completed' ? 'Concluído' : 'Aberto'}
                         </div>
                       </td>
                       <td className="px-8 py-6">
                         <div className="font-bold text-stone-900 text-xs">{founder?.name || 'Desconhecido'}</div>
-                        <div className="text-[10px] text-stone-400">@{challenge.founderId.slice(0, 8)}</div>
+                        <div className="text-overline text-stone-400">@{challenge.founderId.slice(0, 8)}</div>
                       </td>
                       <td className="px-8 py-6 text-right">
                         <button 
                           onClick={() => handleDeleteChallenge(challenge.id)}
-                          className="inline-flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-xl transition-all font-bold text-xs"
+                          className="inline-flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-md transition-all font-bold text-xs"
                         >
                           <Trash2 size={14} />
                           <span>Excluir</span>
@@ -664,7 +667,7 @@ export function AdminPanel({
                 })}
                 {challenges.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-8 py-20 text-center text-stone-400 italic">Nenhum desafio encontrado.</td>
+                    <td colSpan={5} className="px-8 py-20 text-center text-stone-400">Nenhum desafio encontrado.</td>
                   </tr>
                 )}
               </tbody>
@@ -676,10 +679,10 @@ export function AdminPanel({
       {adminTab === 'news' && (
         <section className="space-y-8 animate-in fade-in duration-500">
           <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-serif italic">Gerenciar News</h3>
+            <h3 className="text-h2 font-sans">Gerenciar News</h3>
             <button 
               onClick={() => setIsAddingNews(!isAddingNews)}
-              className="flex items-center gap-2 bg-stone-900 text-white px-6 py-3 rounded-2xl font-bold hover:bg-stone-800 transition-all shadow-lg shadow-stone-900/10"
+              className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary/90 transition-all shadow-lg shadow-stone-900/10"
             >
               <Plus size={20} />
               Nova Notícia
@@ -687,16 +690,16 @@ export function AdminPanel({
           </div>
 
           {isAddingNews && (
-            <div className="bg-white rounded-[24px] md:rounded-[40px] p-6 md:p-10 border border-stone-200 shadow-sm animate-in zoom-in-95 duration-300">
+            <div className="bg-white rounded-xl md:rounded-xl p-6 md:p-10 border border-stone-200 shadow-sm animate-in zoom-in-95 duration-300">
               <div className="flex items-center justify-between mb-8">
-                <h3 className="text-2xl font-serif italic">{editingNewsId ? 'Editar Notícia' : 'Nova Notícia'}</h3>
+                <h3 className="text-h2 font-sans">{editingNewsId ? 'Editar Notícia' : 'Nova Notícia'}</h3>
                 {editingNewsId && (
                   <button 
                     onClick={() => {
                       setEditingNewsId(null);
-                      setNewNews({ 
+                      setNewNews({
                         title: '', content: '', category: 'aviso', eventDate: '', startTime: '', endTime: '',
-                        attachmentUrl: '', attachmentName: '', attachmentType: ''
+                        imageUrl: '', attachmentUrl: '', attachmentName: '', attachmentType: ''
                       });
                       setIsAddingNews(false);
                     }}
@@ -709,21 +712,21 @@ export function AdminPanel({
               <form onSubmit={handleCreateNews} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Título</label>
+                    <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Título</label>
                     <input 
                       required
                       type="text" 
                       value={newNews.title}
                       onChange={e => setNewNews({ ...newNews, title: e.target.value })}
-                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:border-stone-900 transition-all"
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:border-primary transition-all"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Categoria</label>
+                    <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Categoria</label>
                     <select 
                       value={newNews.category}
                       onChange={e => setNewNews({ ...newNews, category: e.target.value as any })}
-                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:border-stone-900 transition-all"
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:border-primary transition-all"
                     >
                       <option value="aviso">Aviso</option>
                       <option value="info">Info</option>
@@ -737,50 +740,64 @@ export function AdminPanel({
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Data</label>
+                    <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Data</label>
                     <input 
                       type="date" 
                       value={newNews.eventDate}
                       onChange={e => setNewNews({ ...newNews, eventDate: e.target.value })}
-                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:border-stone-900 transition-all"
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:border-primary transition-all"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Início</label>
+                    <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Início</label>
                     <input 
                       type="time" 
                       value={newNews.startTime}
                       onChange={e => setNewNews({ ...newNews, startTime: e.target.value })}
-                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:border-stone-900 transition-all"
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:border-primary transition-all"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Término</label>
+                    <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Término</label>
                     <input 
                       type="time" 
                       value={newNews.endTime}
                       onChange={e => setNewNews({ ...newNews, endTime: e.target.value })}
-                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:border-stone-900 transition-all"
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:border-primary transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Conteúdo</label>
+                  <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Conteúdo</label>
                   <textarea 
                     required
                     rows={4}
                     value={newNews.content}
                     onChange={e => setNewNews({ ...newNews, content: e.target.value })}
-                    className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:border-stone-900 transition-all resize-none"
+                    className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:border-primary transition-all resize-none"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Anexo (PDF ou Imagem)</label>
+                  <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Imagem de Capa (URL)</label>
+                  <input
+                    type="url"
+                    placeholder="https://..."
+                    value={newNews.imageUrl}
+                    onChange={e => setNewNews({ ...newNews, imageUrl: e.target.value })}
+                    className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:border-primary transition-all"
+                  />
+                  {newNews.imageUrl && (
+                    <img src={newNews.imageUrl} alt="preview" className="w-full h-32 object-cover rounded-lg border border-stone-100 mt-1" onError={e => (e.currentTarget.style.display = 'none')} />
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Anexo (PDF ou Imagem)</label>
                   <div className="flex items-center gap-4">
                     <label className={cn(
-                      "flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-stone-50 border border-dashed border-stone-200 rounded-2xl cursor-pointer hover:bg-stone-100 transition-all",
+                      "flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-stone-50 border border-dashed border-stone-200 rounded-lg cursor-pointer hover:bg-stone-100 transition-all",
                       isUploading && "opacity-50 cursor-not-allowed"
                     )}>
                       <Paperclip size={20} className="text-stone-400" />
@@ -796,10 +813,10 @@ export function AdminPanel({
                       />
                     </label>
                     {newNews.attachmentUrl && (
-                      <div className="flex items-center gap-2 p-4 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-100">
+                      <div className="flex items-center gap-2 p-4 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100">
                         {newNews.attachmentType === 'pdf' ? <FileText size={20} /> : <Newspaper size={20} />}
                         <div className="flex flex-col">
-                          <span className="text-[10px] uppercase font-bold tracking-widest leading-none">Anexo Pronto</span>
+                          <span className="text-overline uppercase font-bold tracking-widest leading-none">Anexo Pronto</span>
                           <span className="text-xs font-medium truncate max-w-[150px]">{newNews.attachmentName}</span>
                         </div>
                         <button 
@@ -818,14 +835,14 @@ export function AdminPanel({
                   <button 
                     type="button"
                     onClick={() => setIsAddingNews(false)}
-                    className="flex-1 border border-stone-200 text-stone-600 py-4 rounded-2xl font-bold hover:bg-stone-50 transition-all"
+                    className="flex-1 border border-stone-200 text-stone-600 py-4 rounded-lg font-bold hover:bg-stone-50 transition-all"
                   >
                     Cancelar
                   </button>
                   <button 
                     type="submit"
                     disabled={isUploading}
-                    className="flex-1 bg-stone-900 text-white py-4 rounded-2xl font-bold hover:bg-stone-800 transition-all shadow-lg shadow-stone-900/20 disabled:opacity-50"
+                    className="flex-1 bg-primary text-white py-4 rounded-lg font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
                   >
                     {editingNewsId ? 'Salvar Alterações' : 'Publicar'}
                   </button>
@@ -834,15 +851,15 @@ export function AdminPanel({
             </div>
           )}
 
-          <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-stone-50 border-b border-stone-100">
-                    <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Notícia</th>
-                    <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Categoria</th>
-                    <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Data</th>
-                    <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400 text-right">Ações</th>
+                    <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Notícia</th>
+                    <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Categoria</th>
+                    <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Data</th>
+                    <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400 text-right">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -854,11 +871,11 @@ export function AdminPanel({
                       </td>
                       <td className="px-8 py-6">
                         <div className={cn(
-                          "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
+                          "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-overline font-bold uppercase tracking-widest",
                           item.category === 'aviso' ? "bg-rose-50 text-rose-500" :
                           item.category === 'info' ? "bg-blue-50 text-blue-500" :
                           item.category === 'evento' ? "bg-emerald-50 text-emerald-500" :
-                          item.category === 'regras' ? "bg-amber-50 text-amber-500" :
+                          item.category === 'regras' ? "bg-terracota-50 text-primary" :
                           item.category === 'comunicacao' ? "bg-purple-50 text-purple-500" :
                           "bg-stone-100 text-stone-500"
                         )}>
@@ -880,14 +897,14 @@ export function AdminPanel({
                         <div className="flex items-center justify-end gap-2">
                           <button 
                             onClick={() => handleEditNews(item)}
-                            className="inline-flex items-center gap-2 px-4 py-2 text-stone-600 hover:bg-stone-50 rounded-xl transition-all font-bold text-xs"
+                            className="inline-flex items-center gap-2 px-4 py-2 text-stone-600 hover:bg-stone-50 rounded-md transition-all font-bold text-xs"
                           >
                             <Pencil size={14} />
                             <span>Editar</span>
                           </button>
                           <button 
                             onClick={() => handleDeleteNews(item.id)}
-                            className="inline-flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-xl transition-all font-bold text-xs"
+                            className="inline-flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-md transition-all font-bold text-xs"
                           >
                             <Trash2 size={14} />
                             <span>Excluir</span>
@@ -898,7 +915,7 @@ export function AdminPanel({
                   ))}
                   {newsItems.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-8 py-20 text-center text-stone-400 italic">Nenhuma notícia publicada.</td>
+                      <td colSpan={4} className="px-8 py-20 text-center text-stone-400">Nenhuma notícia publicada.</td>
                     </tr>
                   )}
                 </tbody>
@@ -910,9 +927,9 @@ export function AdminPanel({
 
       {adminTab === 'settings' && (
         <section className="space-y-8 animate-in fade-in duration-500">
-          <div className="bg-white rounded-3xl p-8 border border-stone-200 shadow-sm">
+          <div className="bg-white rounded-xl p-8 border border-stone-200 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-serif italic text-lg">Horários Disponíveis</h4>
+              <h4 className="font-sans text-lg">Horários Disponíveis</h4>
               <button 
                 onClick={() => {
                   setModalConfig({
@@ -926,7 +943,7 @@ export function AdminPanel({
                     }
                   });
                 }}
-                className="text-[10px] bg-stone-900 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-stone-800 transition-colors"
+                className="text-overline bg-primary text-white px-3 py-1.5 rounded-lg font-bold hover:bg-primary/90 transition-colors"
               >
                 Restaurar Padrão (30 min)
               </button>
@@ -950,23 +967,23 @@ export function AdminPanel({
                 placeholder="HH:mm"
                 value={newHour}
                 onChange={e => setNewHour(e.target.value)}
-                className="flex-1 px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-stone-900"
+                className="flex-1 px-4 py-3 bg-stone-50 border border-stone-200 rounded-md focus:outline-none focus:border-primary"
               />
               <button 
                 onClick={handleAddHour}
-                className="bg-stone-900 text-white px-6 py-3 rounded-xl hover:bg-stone-800 transition-all"
+                className="bg-primary text-white px-6 py-3 rounded-md hover:bg-primary/90 transition-all"
               >
                 <Plus size={20} />
               </button>
             </div>
 
-            <h4 className="font-serif italic text-lg mb-4">Links de Agendamento</h4>
+            <h4 className="font-sans text-lg mb-4">Links de Agendamento</h4>
             <p className="text-stone-500 text-sm mb-6">Compartilhe estes links para que os usuários acessem diretamente o agendamento de cada sala.</p>
             <div className="space-y-3">
               {rooms.map(room => {
                 const link = `${window.location.origin}/sala/${room.id}`;
                 return (
-                  <div key={room.id} className="p-4 bg-stone-50 border border-stone-100 rounded-2xl flex items-center justify-between">
+                  <div key={room.id} className="p-4 bg-stone-50 border border-stone-100 rounded-lg flex items-center justify-between">
                     <div>
                       <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">{room.name}</span>
                       <div className="text-sm font-mono text-stone-600 break-all">{link}</div>
@@ -992,19 +1009,19 @@ export function AdminPanel({
         <section className="space-y-6 animate-in fade-in duration-500">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h3 className="text-xl md:text-2xl font-serif italic">Indicações de Founders</h3>
+              <h3 className="text-h3 md:text-h2 font-sans">Indicações de Founders</h3>
               <p className="text-stone-500 text-sm mt-1">Revise e aprove ou rejeite as indicações enviadas pela comunidade.</p>
             </div>
             <div className="flex gap-3 shrink-0">
-              <div className="bg-amber-50 border border-amber-200 px-4 py-2.5 rounded-2xl flex flex-col items-center">
-                <span className="text-[10px] uppercase tracking-widest font-bold text-amber-500">Pendentes</span>
-                <span className="text-xl md:text-2xl font-serif italic text-amber-600">
+              <div className="bg-terracota-50 border border-terracota-200 px-4 py-2.5 rounded-lg flex flex-col items-center">
+                <span className="text-overline uppercase tracking-widest font-bold text-primary">Pendentes</span>
+                <span className="text-h3 md:text-h2 font-sans text-primary">
                   {indicacoes.filter((i: any) => !i.status || i.status === 'pendente').length}
                 </span>
               </div>
-              <div className="bg-emerald-50 border border-emerald-200 px-4 py-2.5 rounded-2xl flex flex-col items-center">
-                <span className="text-[10px] uppercase tracking-widest font-bold text-emerald-500">Aprovadas</span>
-                <span className="text-xl md:text-2xl font-serif italic text-emerald-600">
+              <div className="bg-emerald-50 border border-emerald-200 px-4 py-2.5 rounded-lg flex flex-col items-center">
+                <span className="text-overline uppercase tracking-widest font-bold text-emerald-500">Aprovadas</span>
+                <span className="text-h3 md:text-h2 font-sans text-emerald-600">
                   {indicacoes.filter((i: any) => i.status === 'aprovada').length}
                 </span>
               </div>
@@ -1012,24 +1029,24 @@ export function AdminPanel({
           </div>
 
           {indicacoes.length === 0 ? (
-            <div className="bg-white rounded-3xl border border-stone-200 shadow-sm p-12 md:p-20 text-center">
+            <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-12 md:p-20 text-center">
               <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <UserPlus size={28} className="text-stone-400" />
               </div>
-              <p className="text-stone-400 italic">Nenhuma indicação recebida ainda.</p>
+              <p className="text-stone-400">Nenhuma indicação recebida ainda.</p>
             </div>
           ) : (
-            <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-stone-50 border-b border-stone-100">
-                    <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Founder Indicado</th>
-                    <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Empresa / Projeto</th>
-                    <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Área de Atuação</th>
-                    <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Indicado por</th>
-                    <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400">Status</th>
-                    <th className="px-8 py-5 text-[10px] uppercase tracking-widest font-bold text-stone-400 text-right">Ações</th>
+                    <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Founder Indicado</th>
+                    <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Empresa / Projeto</th>
+                    <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Área de Atuação</th>
+                    <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Indicado por</th>
+                    <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400">Status</th>
+                    <th className="px-8 py-5 text-overline uppercase tracking-widest font-bold text-stone-400 text-right">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1042,7 +1059,7 @@ export function AdminPanel({
                           <div className="font-bold text-stone-900">{ind.nomeIndicado}</div>
                         </td>
                         <td className="px-8 py-6">
-                          <div className="font-serif italic text-stone-700">{ind.empresa}</div>
+                          <div className="font-sans text-stone-700">{ind.empresa}</div>
                         </td>
                         <td className="px-8 py-6">
                           <div className="text-sm text-stone-600">{ind.area}</div>
@@ -1052,12 +1069,12 @@ export function AdminPanel({
                         </td>
                         <td className="px-8 py-6">
                           <span className={cn(
-                            "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
+                            "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-overline font-bold uppercase tracking-widest",
                             isAprovada
                               ? "bg-emerald-100 text-emerald-600"
                               : ind.status === 'rejeitada'
                               ? "bg-red-100 text-red-500"
-                              : "bg-amber-100 text-amber-600"
+                              : "bg-terracota-100 text-primary"
                           )}>
                             {isAprovada ? 'Aprovada' : ind.status === 'rejeitada' ? 'Rejeitada' : 'Pendente'}
                           </span>
@@ -1067,14 +1084,14 @@ export function AdminPanel({
                             <div className="flex items-center justify-end gap-2">
                               <button
                                 onClick={() => handleAprovarIndicacao(ind.id)}
-                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-xl transition-all font-bold text-xs"
+                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-md transition-all font-bold text-xs"
                               >
                                 <CheckCircle2 size={14} />
                                 Aprovar
                               </button>
                               <button
                                 onClick={() => handleRejeitarIndicacao(ind.id)}
-                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-50 text-red-500 hover:bg-red-100 rounded-xl transition-all font-bold text-xs"
+                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-50 text-red-500 hover:bg-red-100 rounded-md transition-all font-bold text-xs"
                               >
                                 <X size={14} />
                                 Rejeitar
@@ -1082,7 +1099,7 @@ export function AdminPanel({
                             </div>
                           )}
                           {!isPendente && (
-                            <span className="text-xs text-stone-300 italic">Revisado</span>
+                            <span className="text-xs text-stone-300">Revisado</span>
                           )}
                         </td>
                       </tr>
@@ -1109,12 +1126,12 @@ export function AdminPanel({
       {/* Modal de Edição de Founder */}
       {editingFounder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-serif italic text-stone-900">Editar Perfil</h3>
+              <h3 className="text-h3 font-sans text-stone-900">Editar Perfil</h3>
               <button
                 onClick={() => setEditingFounder(null)}
-                className="p-2 hover:bg-stone-100 rounded-xl transition-all text-stone-400 hover:text-stone-700"
+                className="p-2 hover:bg-stone-100 rounded-md transition-all text-stone-400 hover:text-stone-700"
               >
                 <X size={18} />
               </button>
@@ -1122,39 +1139,39 @@ export function AdminPanel({
 
             <div className="space-y-4">
               <div>
-                <label className="block text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1.5">Nome</label>
+                <label className="block text-overline uppercase tracking-widest font-bold text-stone-400 mb-1.5">Nome</label>
                 <input
                   type="text"
                   value={editFounderForm.name}
                   onChange={e => setEditFounderForm({ ...editFounderForm, name: e.target.value })}
-                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-all"
+                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-md text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-primary transition-all"
                 />
               </div>
               <div>
-                <label className="block text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1.5">Username</label>
+                <label className="block text-overline uppercase tracking-widest font-bold text-stone-400 mb-1.5">Username</label>
                 <input
                   type="text"
                   value={editFounderForm.username}
                   onChange={e => setEditFounderForm({ ...editFounderForm, username: e.target.value })}
-                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-all"
+                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-md text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-primary transition-all"
                 />
               </div>
               <div>
-                <label className="block text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1.5">Empresa</label>
+                <label className="block text-overline uppercase tracking-widest font-bold text-stone-400 mb-1.5">Empresa</label>
                 <input
                   type="text"
                   value={editFounderForm.companyName}
                   onChange={e => setEditFounderForm({ ...editFounderForm, companyName: e.target.value })}
-                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-all"
+                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-md text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-primary transition-all"
                 />
               </div>
               <div>
-                <label className="block text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1.5">Bio da Empresa</label>
+                <label className="block text-overline uppercase tracking-widest font-bold text-stone-400 mb-1.5">Bio da Empresa</label>
                 <textarea
                   value={editFounderForm.companyBio}
                   onChange={e => setEditFounderForm({ ...editFounderForm, companyBio: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-all resize-none"
+                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-md text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-primary transition-all resize-none"
                 />
               </div>
             </div>
@@ -1162,13 +1179,13 @@ export function AdminPanel({
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setEditingFounder(null)}
-                className="flex-1 py-3 rounded-xl border border-stone-200 text-stone-600 font-semibold text-sm hover:bg-stone-50 transition-all"
+                className="flex-1 py-3 rounded-md border border-stone-200 text-stone-600 font-semibold text-sm hover:bg-stone-50 transition-all"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSaveFounderEdit}
-                className="flex-1 py-3 rounded-xl bg-stone-900 text-white font-semibold text-sm hover:bg-stone-800 transition-all"
+                className="flex-1 py-3 rounded-md bg-primary text-white font-semibold text-sm hover:bg-primary/90 transition-all"
               >
                 Salvar
               </button>

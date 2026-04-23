@@ -320,13 +320,13 @@ export function FounderPortal({
   };
 
   if (loading) {
-    return <div className="text-center py-20 italic text-stone-400">Carregando portal...</div>;
+    return <div className="text-center py-20 text-stone-400">Carregando portal...</div>;
   }
 
   if (!user) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-3xl font-serif italic mb-4">Acesso Restrito</h2>
+        <h2 className="text-h1 font-sans mb-4">Acesso Restrito</h2>
         <p className="text-stone-500">Por favor, faça login para acessar o Portal Founders.</p>
       </div>
     );
@@ -335,7 +335,7 @@ export function FounderPortal({
   if (!founder && !isAdmin) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-3xl font-serif italic mb-4">Perfil não encontrado</h2>
+        <h2 className="text-h1 font-sans mb-4">Perfil não encontrado</h2>
         <p className="text-stone-500">Por favor, complete seu cadastro para acessar o portal.</p>
       </div>
     );
@@ -356,7 +356,7 @@ export function FounderPortal({
             <button
               onClick={() => setActiveSubTab?.('desafios-publicos')}
               className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
-                activeSubTab === 'desafios-publicos' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
+                activeSubTab === 'desafios-publicos' ? 'bg-primary text-white' : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
               }`}
             >
               Públicos
@@ -364,7 +364,7 @@ export function FounderPortal({
             <button
               onClick={() => setActiveSubTab?.('desafios-privados')}
               className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
-                activeSubTab === 'desafios-privados' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
+                activeSubTab === 'desafios-privados' ? 'bg-primary text-white' : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
               }`}
             >
               Privados
@@ -372,7 +372,7 @@ export function FounderPortal({
           </div>
           <button
             onClick={() => setShowNewChallenge(true)}
-            className="flex items-center gap-2 bg-stone-900 text-white px-6 py-3 rounded-2xl font-bold hover:bg-stone-800 transition-all shadow-lg shadow-stone-900/10"
+            className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary/90 transition-all shadow-lg shadow-stone-900/10"
           >
             <Plus size={20} />
             Novo Desafio
@@ -389,7 +389,7 @@ export function FounderPortal({
           {isAdmin ? (
             <div className="grid grid-cols-1 gap-6">
               {selectedCompanyFounder ? (
-                <div className="bg-white rounded-[40px] p-12 border border-stone-200 shadow-sm animate-in fade-in zoom-in-95 duration-300">
+                <div className="bg-white rounded-xl p-12 border border-stone-200 shadow-sm animate-in fade-in zoom-in-95 duration-300">
                   <button 
                     onClick={() => setSelectedCompanyFounder(null)}
                     className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 mb-8 flex items-center gap-2"
@@ -401,7 +401,7 @@ export function FounderPortal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                     <div className="space-y-8">
                       <div>
-                        <h3 className="text-3xl font-serif italic mb-6">Dados do Founder</h3>
+                        <h3 className="text-h1 font-sans mb-6">Dados do Founder</h3>
                         {selectedCompanyFounder.photoURL && (
                           <div className="mb-6">
                             <img
@@ -413,21 +413,21 @@ export function FounderPortal({
                         )}
                         <div className="space-y-4">
                           <div>
-                            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Nome Completo</span>
+                            <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Nome Completo</span>
                             <p className="font-bold text-stone-900">{selectedCompanyFounder.name}</p>
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Username</span>
+                            <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Username</span>
                             <p className="text-stone-600">@{selectedCompanyFounder.username}</p>
                           </div>
                           {selectedCompanyFounder.instagram && (
                             <div>
-                              <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Instagram</span>
+                              <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Instagram</span>
                               <p className="text-stone-600">{selectedCompanyFounder.instagram}</p>
                             </div>
                           )}
                           <div>
-                            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Bio</span>
+                            <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Bio</span>
                             <p className="text-sm text-stone-500 leading-relaxed">{selectedCompanyFounder.bio || 'Sem bio informada'}</p>
                           </div>
                         </div>
@@ -435,23 +435,23 @@ export function FounderPortal({
                     </div>
 
                     <div className="space-y-8">
-                      <div className="bg-stone-50 rounded-3xl p-8 border border-stone-100">
-                        <h3 className="text-3xl font-serif italic mb-6">Dados da Empresa</h3>
+                      <div className="bg-stone-50 rounded-xl p-8 border border-stone-100">
+                        <h3 className="text-h1 font-sans mb-6">Dados da Empresa</h3>
                         <div className="space-y-4">
                           <div>
-                            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Nome da Empresa</span>
-                            <p className="font-bold text-stone-900 text-xl">{selectedCompanyFounder.company?.name || 'N/A'}</p>
+                            <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Nome da Empresa</span>
+                            <p className="font-bold text-stone-900 text-h3">{selectedCompanyFounder.company?.name || 'N/A'}</p>
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Categoria</span>
+                            <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Categoria</span>
                             <p className="font-bold text-stone-900">{selectedCompanyFounder.company?.tipo || 'Não informado'}</p>
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">CNPJ</span>
+                            <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">CNPJ</span>
                             <p className="font-bold text-stone-900">{selectedCompanyFounder.company?.cnpj || 'Não informado'}</p>
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Sobre a Empresa</span>
+                            <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Sobre a Empresa</span>
                             <p className="text-sm text-stone-500 leading-relaxed">{selectedCompanyFounder.company?.bio || 'Sem descrição informada'}</p>
                           </div>
                         </div>
@@ -462,7 +462,7 @@ export function FounderPortal({
               ) : (
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-xl font-serif italic">Empresas que estão no QDDO</h3>
+                    <h3 className="text-h3 font-sans">Empresas que estão no QDDO</h3>
                     <p className="text-stone-400 text-sm mt-1">Classificadas por segmento de atuação.</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -477,9 +477,9 @@ export function FounderPortal({
                       if (catFounders.length === 0) return null;
                       const CategoryIcon = CATEGORY_ICONS[cat] || Building2;
                       return (
-                        <div key={cat} className="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm">
+                        <div key={cat} className="bg-white rounded-xl p-6 border border-stone-200 shadow-sm">
                           <div className="flex items-center gap-3 mb-5">
-                            <div className="w-9 h-9 rounded-xl bg-stone-100 flex items-center justify-center flex-shrink-0">
+                            <div className="w-9 h-9 rounded-md bg-stone-100 flex items-center justify-center flex-shrink-0">
                               <CategoryIcon size={16} className="text-stone-600" />
                             </div>
                             <div>
@@ -492,7 +492,7 @@ export function FounderPortal({
                               <button
                                 key={f.id}
                                 onClick={() => setSelectedCompanyFounder(f)}
-                                className="bg-stone-50 hover:bg-stone-900 border border-stone-200 hover:border-stone-900 rounded-xl px-3 py-2.5 text-left transition-all group"
+                                className="bg-stone-50 hover:bg-primary border border-stone-200 hover:border-primary rounded-md px-3 py-2.5 text-left transition-all group"
                               >
                                 <span className="text-xs font-semibold text-stone-700 group-hover:text-white leading-snug block truncate">
                                   {f.company?.name}
@@ -508,28 +508,28 @@ export function FounderPortal({
               )}
             </div>
           ) : (
-            <div className="bg-white rounded-[40px] p-12 border border-stone-200 shadow-sm">
+            <div className="bg-white rounded-xl p-12 border border-stone-200 shadow-sm">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 <div className="space-y-8">
                   <div>
-                    <h3 className="text-3xl font-serif italic mb-6">Seu Perfil Founder</h3>
+                    <h3 className="text-h1 font-sans mb-6">Seu Perfil Founder</h3>
                     <div className="space-y-4">
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Nome Completo</span>
+                        <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Nome Completo</span>
                         <p className="font-bold text-stone-900">{founder?.name}</p>
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Username</span>
+                        <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Username</span>
                         <p className="text-stone-600">@{founder?.username}</p>
                       </div>
                       {founder?.instagram && (
                         <div>
-                          <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Instagram</span>
+                          <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Instagram</span>
                           <p className="text-stone-600">{founder.instagram}</p>
                         </div>
                       )}
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Sua Bio</span>
+                        <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Sua Bio</span>
                         <p className="text-sm text-stone-500 leading-relaxed">{founder?.bio || 'Você ainda não adicionou uma bio.'}</p>
                       </div>
                     </div>
@@ -537,13 +537,13 @@ export function FounderPortal({
                 </div>
 
                 <div className="space-y-8">
-                  <div className="bg-stone-50 rounded-3xl p-8 border border-stone-100">
+                  <div className="bg-stone-50 rounded-xl p-8 border border-stone-100">
                     <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-3xl font-serif italic">Sua Empresa</h3>
+                      <h3 className="text-h1 font-sans">Sua Empresa</h3>
                       {!editingCompany ? (
                         <button
                           onClick={handleStartEditCompany}
-                          className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-200 transition-all"
+                          className="flex items-center gap-2 px-4 py-2 rounded-md text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-200 transition-all"
                         >
                           <Pencil size={14} />
                           Editar
@@ -552,7 +552,7 @@ export function FounderPortal({
                         <div className="flex gap-2">
                           <button
                             onClick={() => setEditingCompany(false)}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-200 transition-all"
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 hover:bg-stone-200 transition-all"
                           >
                             <X size={14} />
                             Cancelar
@@ -560,7 +560,7 @@ export function FounderPortal({
                           <button
                             onClick={handleUpdateCompany}
                             disabled={savingCompany}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest bg-stone-900 text-white hover:bg-stone-700 transition-all disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-bold uppercase tracking-widest bg-primary text-white hover:bg-primary/80 transition-all disabled:opacity-50"
                           >
                             <Check size={14} />
                             {savingCompany ? 'Salvando...' : 'Salvar'}
@@ -570,26 +570,26 @@ export function FounderPortal({
                     </div>
                     <div className="space-y-4">
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Nome da Empresa</span>
+                        <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Nome da Empresa</span>
                         {editingCompany ? (
                           <input
                             type="text"
                             value={companyEditData.name}
                             onChange={e => setCompanyEditData({ ...companyEditData, name: e.target.value })}
-                            className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-all font-bold text-stone-900"
+                            className="w-full px-4 py-3 bg-white border border-stone-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all font-bold text-stone-900"
                             placeholder="Nome da sua empresa"
                           />
                         ) : (
-                          <p className="font-bold text-stone-900 text-xl">{founder?.company?.name || 'N/A'}</p>
+                          <p className="font-bold text-stone-900 text-h3">{founder?.company?.name || 'N/A'}</p>
                         )}
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Categoria de Empresa</span>
+                        <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Categoria de Empresa</span>
                         {editingCompany ? (
                           <select
                             value={companyEditData.tipo}
                             onChange={e => setCompanyEditData({ ...companyEditData, tipo: e.target.value })}
-                            className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-all appearance-none"
+                            className="w-full px-4 py-3 bg-white border border-stone-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all appearance-none"
                           >
                             <option value="">Selecione a categoria...</option>
                             <option value="HealthTech">HealthTech</option>
@@ -604,19 +604,19 @@ export function FounderPortal({
                         )}
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">CNPJ</span>
+                        <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">CNPJ</span>
                         {editingCompany ? (
                           <input
                             type="text"
                             value={companyEditData.cnpj}
                             onChange={e => setCompanyEditData({ ...companyEditData, cnpj: e.target.value })}
-                            className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-all"
+                            className="w-full px-4 py-3 bg-white border border-stone-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
                             placeholder="00.000.000/0000-00"
                           />
                         ) : founder?.company?.cnpj ? (
                           <p className="font-bold text-stone-900">{founder.company.cnpj}</p>
                         ) : (
-                          <div className="p-4 bg-rose-50 border border-rose-100 rounded-2xl">
+                          <div className="p-4 bg-rose-50 border border-rose-100 rounded-lg">
                             <p className="text-xs text-rose-600 font-bold flex items-center gap-2">
                               <AlertTriangle size={14} />
                               Pendência: CNPJ não informado. Clique em "Editar" para adicionar.
@@ -625,13 +625,13 @@ export function FounderPortal({
                         )}
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Sobre a Empresa</span>
+                        <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Sobre a Empresa</span>
                         {editingCompany ? (
                           <textarea
                             rows={4}
                             value={companyEditData.bio}
                             onChange={e => setCompanyEditData({ ...companyEditData, bio: e.target.value })}
-                            className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-900 transition-all resize-none"
+                            className="w-full px-4 py-3 bg-white border border-stone-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all resize-none"
                             placeholder="Descreva sua empresa..."
                           />
                         ) : (
@@ -652,39 +652,39 @@ export function FounderPortal({
           {/* New Challenge Modal */}
       {showNewChallenge && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
-          <div className="bg-white rounded-[40px] p-12 max-w-xl w-full shadow-2xl animate-in zoom-in-95 duration-300">
-            <h3 className="text-3xl font-serif italic mb-8">Criar Novo Desafio</h3>
+          <div className="bg-white rounded-xl p-12 max-w-xl w-full shadow-2xl animate-in zoom-in-95 duration-300">
+            <h3 className="text-h1 font-sans mb-8">Criar Novo Desafio</h3>
             <form onSubmit={handleCreateChallenge} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Título do Desafio</label>
+                <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Título do Desafio</label>
                 <input 
                   required
                   type="text" 
                   placeholder="Ex: Otimizar funil de vendas"
                   value={challengeData.title}
                   onChange={e => setChallengeData({ ...challengeData, title: e.target.value })}
-                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all"
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Descrição</label>
+                <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Descrição</label>
                 <textarea 
                   rows={4}
                   placeholder="Descreva o que você precisa resolver..."
                   value={challengeData.description}
                   onChange={e => setChallengeData({ ...challengeData, description: e.target.value })}
-                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all resize-none"
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all resize-none"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Visibilidade</label>
+                <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Visibilidade</label>
                 <div className="grid grid-cols-2 gap-4">
                   <button
                     type="button"
                     onClick={() => setChallengeData({ ...challengeData, type: 'public' })}
                     className={cn(
-                      "flex items-center justify-center gap-2 py-4 rounded-2xl border font-bold transition-all",
-                      challengeData.type === 'public' ? "bg-stone-900 border-stone-900 text-white" : "border-stone-200 text-stone-400 hover:border-stone-400"
+                      "flex items-center justify-center gap-2 py-4 rounded-lg border font-bold transition-all",
+                      challengeData.type === 'public' ? "bg-primary border-primary text-white" : "border-stone-200 text-stone-400 hover:border-stone-400"
                     )}
                   >
                     <Globe size={18} />
@@ -694,15 +694,15 @@ export function FounderPortal({
                     type="button"
                     onClick={() => setChallengeData({ ...challengeData, type: 'private' })}
                     className={cn(
-                      "flex items-center justify-center gap-2 py-4 rounded-2xl border font-bold transition-all",
-                      challengeData.type === 'private' ? "bg-stone-900 border-stone-900 text-white" : "border-stone-200 text-stone-400 hover:border-stone-400"
+                      "flex items-center justify-center gap-2 py-4 rounded-lg border font-bold transition-all",
+                      challengeData.type === 'private' ? "bg-primary border-primary text-white" : "border-stone-200 text-stone-400 hover:border-stone-400"
                     )}
                   >
                     <Lock size={18} />
                     Privado
                   </button>
                 </div>
-                <p className="text-[10px] text-stone-400 mt-2 italic">
+                <p className="text-overline text-stone-400 mt-2">
                   * Desafios privados são visíveis apenas para você e administradores do QDDO.
                 </p>
               </div>
@@ -711,13 +711,13 @@ export function FounderPortal({
                 <button 
                   type="button"
                   onClick={() => setShowNewChallenge(false)}
-                  className="flex-1 border border-stone-200 text-stone-600 py-4 rounded-2xl font-bold hover:bg-stone-50 transition-all"
+                  className="flex-1 border border-stone-200 text-stone-600 py-4 rounded-lg font-bold hover:bg-stone-50 transition-all"
                 >
                   Cancelar
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 bg-stone-900 text-white py-4 rounded-2xl font-bold hover:bg-stone-800 transition-all shadow-lg shadow-stone-900/20"
+                  className="flex-1 bg-primary text-white py-4 rounded-lg font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
                 >
                   Criar Desafio
                 </button>
@@ -730,13 +730,13 @@ export function FounderPortal({
       {/* Completion Modal */}
       {completingChallenge && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
-          <div className="bg-white rounded-[40px] p-12 max-w-xl w-full shadow-2xl animate-in zoom-in-95 duration-300">
-            <h3 className="text-3xl font-serif italic mb-2">Concluir Desafio</h3>
-            <p className="text-stone-500 mb-8 font-serif italic">"{completingChallenge.title}"</p>
+          <div className="bg-white rounded-xl p-12 max-w-xl w-full shadow-2xl animate-in zoom-in-95 duration-300">
+            <h3 className="text-h1 font-sans mb-2">Concluir Desafio</h3>
+            <p className="text-stone-500 mb-8 font-sans">"{completingChallenge.title}"</p>
             
             <form onSubmit={handleCompleteChallenge} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Quem te ajudou?</label>
+                <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Quem te ajudou?</label>
                 <div className="relative">
                   <HelpCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-300" size={20} />
                   <input
@@ -745,12 +745,12 @@ export function FounderPortal({
                     placeholder="Nome da pessoa ou parceiro"
                     value={completionData.helperName}
                     onChange={e => setCompletionData({ ...completionData, helperName: e.target.value })}
-                    className="w-full pl-12 pr-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all"
+                    className="w-full pl-12 pr-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">@ do usuário que te ajudou</label>
+                <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">@ do usuário que te ajudou</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 font-bold text-sm">@</span>
                   <input
@@ -758,18 +758,18 @@ export function FounderPortal({
                     placeholder="username"
                     value={completionData.helperUsername}
                     onChange={e => setCompletionData({ ...completionData, helperUsername: e.target.value.replace(/^@/, '') })}
-                    className="w-full pl-9 pr-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all"
+                    className="w-full pl-9 pr-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Como foi resolvido?</label>
+                <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Como foi resolvido?</label>
                 <textarea 
                   rows={4}
                   placeholder="Descreva a solução encontrada..."
                   value={completionData.resolutionDescription}
                   onChange={e => setCompletionData({ ...completionData, resolutionDescription: e.target.value })}
-                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all resize-none"
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all resize-none"
                 />
               </div>
 
@@ -777,13 +777,13 @@ export function FounderPortal({
                 <button 
                   type="button"
                   onClick={() => setCompletingChallenge(null)}
-                  className="flex-1 border border-stone-200 text-stone-600 py-4 rounded-2xl font-bold hover:bg-stone-50 transition-all"
+                  className="flex-1 border border-stone-200 text-stone-600 py-4 rounded-lg font-bold hover:bg-stone-50 transition-all"
                 >
                   Voltar
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
+                  className="flex-1 bg-emerald-600 text-white py-4 rounded-lg font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
                 >
                   Finalizar Tarefa
                 </button>
@@ -796,37 +796,37 @@ export function FounderPortal({
       {/* Edit Challenge Modal */}
       {editingChallenge && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
-          <div className="bg-white rounded-[40px] p-12 max-w-xl w-full shadow-2xl animate-in zoom-in-95 duration-300">
-            <h3 className="text-3xl font-serif italic mb-8">Editar Desafio</h3>
+          <div className="bg-white rounded-xl p-12 max-w-xl w-full shadow-2xl animate-in zoom-in-95 duration-300">
+            <h3 className="text-h1 font-sans mb-8">Editar Desafio</h3>
             <form onSubmit={handleEditChallenge} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Título do Desafio</label>
+                <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Título do Desafio</label>
                 <input
                   required
                   type="text"
                   value={editData.title}
                   onChange={e => setEditData({ ...editData, title: e.target.value })}
-                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all"
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Descrição</label>
+                <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Descrição</label>
                 <textarea
                   rows={4}
                   value={editData.description}
                   onChange={e => setEditData({ ...editData, description: e.target.value })}
-                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-stone-900/5 focus:border-stone-900 transition-all resize-none"
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all resize-none"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-wider font-bold text-stone-400 ml-1">Visibilidade</label>
+                <label className="text-overline uppercase tracking-wider font-bold text-stone-400 ml-1">Visibilidade</label>
                 <div className="grid grid-cols-2 gap-4">
                   <button
                     type="button"
                     onClick={() => setEditData({ ...editData, type: 'public' })}
                     className={cn(
-                      "flex items-center justify-center gap-2 py-4 rounded-2xl border font-bold transition-all",
-                      editData.type === 'public' ? "bg-stone-900 border-stone-900 text-white" : "border-stone-200 text-stone-400 hover:border-stone-400"
+                      "flex items-center justify-center gap-2 py-4 rounded-lg border font-bold transition-all",
+                      editData.type === 'public' ? "bg-primary border-primary text-white" : "border-stone-200 text-stone-400 hover:border-stone-400"
                     )}
                   >
                     <Globe size={18} />
@@ -836,8 +836,8 @@ export function FounderPortal({
                     type="button"
                     onClick={() => setEditData({ ...editData, type: 'private' })}
                     className={cn(
-                      "flex items-center justify-center gap-2 py-4 rounded-2xl border font-bold transition-all",
-                      editData.type === 'private' ? "bg-stone-900 border-stone-900 text-white" : "border-stone-200 text-stone-400 hover:border-stone-400"
+                      "flex items-center justify-center gap-2 py-4 rounded-lg border font-bold transition-all",
+                      editData.type === 'private' ? "bg-primary border-primary text-white" : "border-stone-200 text-stone-400 hover:border-stone-400"
                     )}
                   >
                     <Lock size={18} />
@@ -849,13 +849,13 @@ export function FounderPortal({
                 <button
                   type="button"
                   onClick={() => setEditingChallenge(null)}
-                  className="flex-1 border border-stone-200 text-stone-600 py-4 rounded-2xl font-bold hover:bg-stone-50 transition-all"
+                  className="flex-1 border border-stone-200 text-stone-600 py-4 rounded-lg font-bold hover:bg-stone-50 transition-all"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-stone-900 text-white py-4 rounded-2xl font-bold hover:bg-stone-800 transition-all shadow-lg shadow-stone-900/20"
+                  className="flex-1 bg-primary text-white py-4 rounded-lg font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
                 >
                   Salvar Alterações
                 </button>
@@ -868,11 +868,11 @@ export function FounderPortal({
       {/* Challenges List */}
       <div className="grid grid-cols-1 gap-6">
         {filteredChallenges.length === 0 ? (
-          <div className="bg-white rounded-3xl p-20 border border-stone-200 shadow-sm text-center">
+          <div className="bg-white rounded-xl p-20 border border-stone-200 shadow-sm text-center">
             <div className="w-16 h-16 bg-stone-50 rounded-full flex items-center justify-center mx-auto mb-6 text-stone-300">
               <CheckSquare size={32} />
             </div>
-            <h3 className="text-xl font-serif italic text-stone-400">Nenhum desafio encontrado nesta categoria</h3>
+            <h3 className="text-h3 font-sans text-stone-400">Nenhum desafio encontrado nesta categoria</h3>
             <button 
               onClick={() => setShowNewChallenge(true)}
               className="mt-6 text-stone-900 font-bold underline underline-offset-4 hover:text-stone-600 transition-colors"
@@ -885,7 +885,7 @@ export function FounderPortal({
             <div
               key={challenge.id}
               className={cn(
-                "bg-white rounded-3xl p-8 border transition-all flex flex-col gap-8 relative",
+                "bg-white rounded-xl p-8 border transition-all flex flex-col gap-8 relative",
                 challenge.status === 'completed' ? "border-emerald-100 bg-emerald-50/10" : "border-stone-200 hover:border-stone-400 hover:shadow-xl",
                 expandedChallengeId === challenge.id && "border-stone-900 shadow-2xl"
               )}
@@ -896,7 +896,7 @@ export function FounderPortal({
                     setEditingChallenge(challenge);
                     setEditData({ title: challenge.title, description: challenge.description || '', type: challenge.type });
                   }}
-                  className="absolute top-6 right-6 w-8 h-8 rounded-xl bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-400 hover:text-stone-900 transition-all"
+                  className="absolute top-6 right-6 w-8 h-8 rounded-md bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-400 hover:text-stone-900 transition-all"
                   title="Editar desafio"
                 >
                   <Pencil size={14} />
@@ -905,36 +905,29 @@ export function FounderPortal({
               <div className="flex flex-col sm:flex-row gap-8">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className={cn(
-                      "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5",
-                      challenge.type === 'private' ? "bg-stone-100 text-stone-500" : "bg-blue-50 text-blue-500"
-                    )}>
-                      {challenge.type === 'private' ? <Lock size={12} /> : <Globe size={12} />}
-                      {challenge.type === 'private' ? 'Privado' : 'Público'}
-                    </div>
                     {challenge.status === 'completed' && (
-                      <div className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                      <div className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 text-overline font-bold uppercase tracking-widest flex items-center gap-1.5">
                         <CheckCircle2 size={12} />
                         Concluído
                       </div>
                     )}
                   </div>
                   
-                  <h3 className="text-2xl font-serif italic mb-2">{challenge.title}</h3>
+                  <h3 className="text-h2 font-sans mb-2">{challenge.title}</h3>
                   <p className="text-stone-500 text-sm mb-6 leading-relaxed">{challenge.description}</p>
                   
                   {challenge.status === 'completed' && (
-                    <div className="mt-6 p-6 bg-white rounded-2xl border border-emerald-100 space-y-4">
+                    <div className="mt-6 p-6 bg-white rounded-lg border border-emerald-100 space-y-4">
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Ajudado por</span>
+                        <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Ajudado por</span>
                         <p className="font-bold text-stone-900">{challenge.helperName}</p>
                         {challenge.helperUsername && (
                           <p className="text-sm text-stone-500 mt-0.5">@{challenge.helperUsername}</p>
                         )}
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-1">Solução</span>
-                        <p className="text-sm text-stone-600 italic">"{challenge.resolutionDescription}"</p>
+                        <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Solução</span>
+                        <p className="text-sm text-stone-600">"{challenge.resolutionDescription}"</p>
                       </div>
                     </div>
                   )}
@@ -954,14 +947,14 @@ export function FounderPortal({
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-stone-400">
                       <Clock size={16} />
-                      <span className="text-[10px] font-bold uppercase">
+                      <span className="text-overline font-bold uppercase">
                         {challenge.createdAt?.seconds ? new Date(challenge.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : '...'}
                       </span>
                     </div>
                     {challenge.status === 'open' && challenge.founderId === user.uid && (
                       <button 
                         onClick={() => setCompletingChallenge(challenge)}
-                        className="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/10"
+                        className="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-md font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/10"
                       >
                         Concluir
                         <ArrowRight size={18} />
@@ -971,7 +964,7 @@ export function FounderPortal({
                   
                   {challenge.founderId !== user.uid && (
                     <div className="mt-4 pt-4 border-t border-stone-50">
-                      <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 block mb-2">Founder</span>
+                      <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-2">Founder</span>
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 bg-stone-100 rounded-full flex items-center justify-center text-stone-400">
                           <UserIcon size={12} />
