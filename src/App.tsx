@@ -420,7 +420,7 @@ export default function App() {
     try {
       await setDoc(doc(db, 'founders', user.uid), {
         name: profileName.trim(),
-        username: profileUsername.trim().toLowerCase().replace(/\s+/g, ''),
+        username: profileUsername.trim().toLowerCase().replace(/\s+/g, '').replace(/@/g, ''),
         birthDay: profileBirthDay,
         birthMonth: profileBirthMonth,
         birthYear: profileBirthYear,
@@ -3118,7 +3118,7 @@ export default function App() {
                   <input
                     type="text"
                     value={profileUsername}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfileUsername(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfileUsername(e.target.value.replace(/@/g, ''))}
                     className="flex-1 bg-transparent text-sm text-stone-900 focus:outline-none"
                     placeholder="seu.username"
                   />
