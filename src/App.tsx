@@ -2560,7 +2560,7 @@ export default function App() {
                     <div className="w-9 h-9 lg:w-10 lg:h-10 bg-stone-100 rounded-md flex items-center justify-center mb-3 lg:mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
                       <MessageSquare size={18} />
                     </div>
-                    <h3 className="text-base font-sans mb-1">Comunicação</h3>
+                    <h3 className="text-base font-sans mb-1">Assets dos Founders</h3>
                     <p className="text-stone-400 text-xs hidden sm:block">Canais oficiais de suporte e interação entre membros.</p>
                   </div>
                 </div>
