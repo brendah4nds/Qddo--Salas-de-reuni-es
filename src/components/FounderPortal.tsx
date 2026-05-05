@@ -865,126 +865,207 @@ export function FounderPortal({
         </div>
       )}
 
-      {/* Challenges List */}
-      <div className="grid grid-cols-1 gap-6">
-        {filteredChallenges.length === 0 ? (
-          <div className="bg-white rounded-xl p-20 border border-stone-200 shadow-sm text-center">
-            <div className="w-16 h-16 bg-stone-50 rounded-full flex items-center justify-center mx-auto mb-6 text-stone-300">
-              <CheckSquare size={32} />
-            </div>
-            <h3 className="text-h3 font-sans text-stone-400">Nenhum desafio encontrado nesta categoria</h3>
-            <button 
-              onClick={() => setShowNewChallenge(true)}
-              className="mt-6 text-stone-900 font-bold underline underline-offset-4 hover:text-stone-600 transition-colors"
-            >
-              Criar meu primeiro desafio
-            </button>
+      {/* Challenges List - 2 columns */}
+      {filteredChallenges.length === 0 ? (
+        <div className="bg-white rounded-xl p-20 border border-stone-200 shadow-sm text-center">
+          <div className="w-16 h-16 bg-stone-50 rounded-full flex items-center justify-center mx-auto mb-6 text-stone-300">
+            <CheckSquare size={32} />
           </div>
-        ) : (
-          filteredChallenges.map(challenge => (
-            <div
-              key={challenge.id}
-              className={cn(
-                "bg-white rounded-xl p-8 border transition-all flex flex-col gap-8 relative",
-                challenge.status === 'completed' ? "border-emerald-100 bg-emerald-50/10" : "border-stone-200 hover:border-stone-400 hover:shadow-xl",
-                expandedChallengeId === challenge.id && "border-stone-900 shadow-2xl"
-              )}
-            >
-              {challenge.founderId === user.uid && (
-                <button
-                  onClick={() => {
-                    setEditingChallenge(challenge);
-                    setEditData({ title: challenge.title, description: challenge.description || '', type: challenge.type });
-                  }}
-                  className="absolute top-6 right-6 w-8 h-8 rounded-md bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-400 hover:text-stone-900 transition-all"
-                  title="Editar desafio"
+          <h3 className="text-h3 font-sans text-stone-400">Nenhum desafio encontrado nesta categoria</h3>
+          <button
+            onClick={() => setShowNewChallenge(true)}
+            className="mt-6 text-stone-900 font-bold underline underline-offset-4 hover:text-stone-600 transition-colors"
+          >
+            Criar meu primeiro desafio
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* Coluna: Desafios a Serem Resolvidos */}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-overline uppercase tracking-widest font-bold text-stone-400 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-stone-400 inline-block" />
+              Desafios a Serem Resolvidos
+            </h3>
+            {filteredChallenges.filter(c => c.status === 'open').length === 0 ? (
+              <div className="bg-white rounded-xl p-10 border border-stone-200 text-center">
+                <p className="text-stone-400 text-sm">Nenhum desafio em aberto</p>
+              </div>
+            ) : (
+              filteredChallenges.filter(c => c.status === 'open').map(challenge => (
+                <div
+                  key={challenge.id}
+                  className={cn(
+                    "bg-white rounded-xl p-8 border transition-all flex flex-col gap-8 relative",
+                    "border-stone-200 hover:border-stone-400 hover:shadow-xl",
+                    expandedChallengeId === challenge.id && "border-stone-900 shadow-2xl"
+                  )}
                 >
-                  <Pencil size={14} />
-                </button>
-              )}
-              <div className="flex flex-col sm:flex-row gap-8">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-4">
-                    {challenge.status === 'completed' && (
-                      <div className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 text-overline font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <CheckCircle2 size={12} />
-                        Concluído
+                  {challenge.founderId === user.uid && (
+                    <button
+                      onClick={() => {
+                        setEditingChallenge(challenge);
+                        setEditData({ title: challenge.title, description: challenge.description || '', type: challenge.type });
+                      }}
+                      className="absolute top-6 right-6 w-8 h-8 rounded-md bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-400 hover:text-stone-900 transition-all"
+                      title="Editar desafio"
+                    >
+                      <Pencil size={14} />
+                    </button>
+                  )}
+                  <div className="flex flex-col sm:flex-row gap-8">
+                    <div className="flex-1">
+                      <h3 className="text-h2 font-sans mb-2">{challenge.title}</h3>
+                      <p className="text-stone-500 text-sm mb-6 leading-relaxed">{challenge.description}</p>
+                      <div className="mt-6 flex items-center gap-4">
+                        <button
+                          onClick={() => setExpandedChallengeId(expandedChallengeId === challenge.id ? null : challenge.id)}
+                          className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors flex items-center gap-2"
+                        >
+                          <MessageCircle size={16} />
+                          {expandedChallengeId === challenge.id ? 'Fechar Comentários' : 'Ver Comentários'}
+                        </button>
                       </div>
-                    )}
-                  </div>
-                  
-                  <h3 className="text-h2 font-sans mb-2">{challenge.title}</h3>
-                  <p className="text-stone-500 text-sm mb-6 leading-relaxed">{challenge.description}</p>
-                  
-                  {challenge.status === 'completed' && (
-                    <div className="mt-6 p-6 bg-white rounded-lg border border-emerald-100 space-y-4">
-                      <div>
-                        <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Ajudado por</span>
-                        <p className="font-bold text-stone-900">{challenge.helperName}</p>
-                        {challenge.helperUsername && (
-                          <p className="text-sm text-stone-500 mt-0.5">@{challenge.helperUsername}</p>
+                    </div>
+                    <div className="sm:w-48 flex flex-col justify-between border-t sm:border-t-0 sm:border-l border-stone-100 pt-6 sm:pt-0 sm:pl-8">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-stone-400">
+                          <Clock size={16} />
+                          <span className="text-overline font-bold uppercase">
+                            {challenge.createdAt?.seconds ? new Date(challenge.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : '...'}
+                          </span>
+                        </div>
+                        {challenge.founderId === user.uid && (
+                          <button
+                            onClick={() => setCompletingChallenge(challenge)}
+                            className="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-md font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/10"
+                          >
+                            Concluir
+                            <ArrowRight size={18} />
+                          </button>
                         )}
                       </div>
-                      <div>
-                        <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Solução</span>
-                        <p className="text-sm text-stone-600">"{challenge.resolutionDescription}"</p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="mt-6 flex items-center gap-4">
-                    <button 
-                      onClick={() => setExpandedChallengeId(expandedChallengeId === challenge.id ? null : challenge.id)}
-                      className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors flex items-center gap-2"
-                    >
-                      <MessageCircle size={16} />
-                      {expandedChallengeId === challenge.id ? 'Fechar Comentários' : 'Ver Comentários'}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="sm:w-48 flex flex-col justify-between border-t sm:border-t-0 sm:border-l border-stone-100 pt-6 sm:pt-0 sm:pl-8">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-stone-400">
-                      <Clock size={16} />
-                      <span className="text-overline font-bold uppercase">
-                        {challenge.createdAt?.seconds ? new Date(challenge.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : '...'}
-                      </span>
-                    </div>
-                    {challenge.status === 'open' && challenge.founderId === user.uid && (
-                      <button 
-                        onClick={() => setCompletingChallenge(challenge)}
-                        className="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-md font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/10"
-                      >
-                        Concluir
-                        <ArrowRight size={18} />
-                      </button>
-                    )}
-                  </div>
-                  
-                  {challenge.founderId !== user.uid && (
-                    <div className="mt-4 pt-4 border-t border-stone-50">
-                      <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-2">Founder</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 bg-stone-100 rounded-full flex items-center justify-center text-stone-400">
-                          <UserIcon size={12} />
+                      {challenge.founderId !== user.uid && (
+                        <div className="mt-4 pt-4 border-t border-stone-50">
+                          <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-2">Founder</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 bg-stone-100 rounded-full flex items-center justify-center text-stone-400">
+                              <UserIcon size={12} />
+                            </div>
+                            <span className="text-xs font-bold text-stone-900">
+                              {founders.find(f => f.id === challenge.founderId)?.name || `@${challenge.founderId.slice(0, 6)}`}
+                            </span>
+                          </div>
                         </div>
-                        <span className="text-xs font-bold text-stone-900">
-                          {founders.find(f => f.id === challenge.founderId)?.name || `@${challenge.founderId.slice(0, 6)}`}
-                        </span>
-                      </div>
+                      )}
                     </div>
+                  </div>
+                  {expandedChallengeId === challenge.id && (
+                    <ChallengeComments challengeId={challenge.id} user={user} />
                   )}
                 </div>
-              </div>
+              ))
+            )}
+          </div>
 
-              {expandedChallengeId === challenge.id && (
-                <ChallengeComments challengeId={challenge.id} user={user} />
-              )}
-            </div>
-          ))
-        )}
-      </div>
+          {/* Coluna: Desafios Cumpridos */}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-overline uppercase tracking-widest font-bold text-emerald-500 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
+              Desafios Cumpridos
+            </h3>
+            {filteredChallenges.filter(c => c.status === 'completed').length === 0 ? (
+              <div className="bg-white rounded-xl p-10 border border-stone-200 text-center">
+                <p className="text-stone-400 text-sm">Nenhum desafio concluído ainda</p>
+              </div>
+            ) : (
+              filteredChallenges.filter(c => c.status === 'completed').map(challenge => (
+                <div
+                  key={challenge.id}
+                  className={cn(
+                    "bg-white rounded-xl p-8 border transition-all flex flex-col gap-8 relative",
+                    "border-emerald-100 bg-emerald-50/10",
+                    expandedChallengeId === challenge.id && "border-emerald-400 shadow-2xl"
+                  )}
+                >
+                  {challenge.founderId === user.uid && (
+                    <button
+                      onClick={() => {
+                        setEditingChallenge(challenge);
+                        setEditData({ title: challenge.title, description: challenge.description || '', type: challenge.type });
+                      }}
+                      className="absolute top-6 right-6 w-8 h-8 rounded-md bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-400 hover:text-stone-900 transition-all"
+                      title="Editar desafio"
+                    >
+                      <Pencil size={14} />
+                    </button>
+                  )}
+                  <div className="flex flex-col sm:flex-row gap-8">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 text-overline font-bold uppercase tracking-widest flex items-center gap-1.5">
+                          <CheckCircle2 size={12} />
+                          Concluído
+                        </div>
+                      </div>
+                      <h3 className="text-h2 font-sans mb-2">{challenge.title}</h3>
+                      <p className="text-stone-500 text-sm mb-6 leading-relaxed">{challenge.description}</p>
+                      <div className="mt-6 p-6 bg-white rounded-lg border border-emerald-100 space-y-4">
+                        <div>
+                          <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Ajudado por</span>
+                          <p className="font-bold text-stone-900">{challenge.helperName}</p>
+                          {challenge.helperUsername && (
+                            <p className="text-sm text-stone-500 mt-0.5">@{challenge.helperUsername}</p>
+                          )}
+                        </div>
+                        <div>
+                          <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Solução</span>
+                          <p className="text-sm text-stone-600">"{challenge.resolutionDescription}"</p>
+                        </div>
+                      </div>
+                      <div className="mt-6 flex items-center gap-4">
+                        <button
+                          onClick={() => setExpandedChallengeId(expandedChallengeId === challenge.id ? null : challenge.id)}
+                          className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors flex items-center gap-2"
+                        >
+                          <MessageCircle size={16} />
+                          {expandedChallengeId === challenge.id ? 'Fechar Comentários' : 'Ver Comentários'}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="sm:w-48 flex flex-col justify-between border-t sm:border-t-0 sm:border-l border-stone-100 pt-6 sm:pt-0 sm:pl-8">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-stone-400">
+                          <Clock size={16} />
+                          <span className="text-overline font-bold uppercase">
+                            {challenge.createdAt?.seconds ? new Date(challenge.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : '...'}
+                          </span>
+                        </div>
+                      </div>
+                      {challenge.founderId !== user.uid && (
+                        <div className="mt-4 pt-4 border-t border-stone-50">
+                          <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-2">Founder</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 bg-stone-100 rounded-full flex items-center justify-center text-stone-400">
+                              <UserIcon size={12} />
+                            </div>
+                            <span className="text-xs font-bold text-stone-900">
+                              {founders.find(f => f.id === challenge.founderId)?.name || `@${challenge.founderId.slice(0, 6)}`}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {expandedChallengeId === challenge.id && (
+                    <ChallengeComments challengeId={challenge.id} user={user} />
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
     </>
   )}
 </div>
