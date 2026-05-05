@@ -2648,7 +2648,7 @@ export default function App() {
               {activeGeneralCategory === 'founders' ? (
                 allFounders.length > 0 ? (
                   <div className="space-y-3">
-                    {allFounders.map(f => (
+                    {[...allFounders].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR')).map(f => (
                       <div key={f.id} className="flex items-center gap-4 p-4 bg-stone-50 rounded-lg border border-stone-100 hover:border-stone-300 transition-all">
                         <div className="w-11 h-11 bg-stone-200 rounded-full flex items-center justify-center shrink-0 overflow-hidden">
                           {f.photoURL ? (
