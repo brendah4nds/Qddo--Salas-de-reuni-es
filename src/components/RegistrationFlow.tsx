@@ -31,7 +31,7 @@ export function RegistrationFlow({ user, onComplete }: { user: User; onComplete:
     try {
       await setDoc(doc(db, 'founders', user.uid), {
         name: formData.name,
-        username: formData.username,
+        username: formData.username.replace(/@/g, '').trim().toLowerCase(),
         instagram: formData.instagram,
         bio: formData.bio,
         company: {
@@ -81,7 +81,7 @@ export function RegistrationFlow({ user, onComplete }: { user: User; onComplete:
                 type="text" 
                 placeholder="@username"
                 value={formData.username}
-                onChange={e => setFormData({ ...formData, username: e.target.value })}
+                onChange={e => setFormData({ ...formData, username: e.target.value.replace(/@/g, '') })}
                 className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
               />
             </div>

@@ -275,7 +275,7 @@ export function AdminPanel({
   const handleOpenEditFounder = (founder: any) => {
     setEditFounderForm({
       name: founder.name || '',
-      username: founder.username || '',
+      username: (founder.username || '').replace(/@/g, ''),
       companyName: founder.company?.name || '',
       companyBio: founder.company?.bio || '',
     });
@@ -288,7 +288,7 @@ export function AdminPanel({
       await setDoc(doc(db, 'founders', editingFounder.id), {
         ...editingFounder,
         name: editFounderForm.name,
-        username: editFounderForm.username,
+        username: editFounderForm.username.replace(/@/g, ''),
         company: {
           ...editingFounder.company,
           name: editFounderForm.companyName,
@@ -592,7 +592,7 @@ export function AdminPanel({
                   <tr key={founder.id} className="border-b border-stone-50 hover:bg-stone-50/50 transition-colors">
                     <td className="px-8 py-6">
                       <div className="font-bold text-stone-900">{founder.name}</div>
-                      <div className="text-xs text-stone-400">@{founder.username}</div>
+                      <div className="text-xs text-stone-400">@{founder.username?.replace(/@/g, '')}</div>
                     </td>
                     <td className="px-8 py-6">
                       <div className="font-sans text-stone-700">{founder.company?.name || 'N/A'}</div>
@@ -1244,7 +1244,7 @@ export function AdminPanel({
                 <input
                   type="text"
                   value={editFounderForm.username}
-                  onChange={e => setEditFounderForm({ ...editFounderForm, username: e.target.value })}
+                  onChange={e => setEditFounderForm({ ...editFounderForm, username: e.target.value.replace(/@/g, '') })}
                   className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-md text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-primary transition-all"
                 />
               </div>

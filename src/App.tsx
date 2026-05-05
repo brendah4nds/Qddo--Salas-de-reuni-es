@@ -420,7 +420,7 @@ export default function App() {
     try {
       await setDoc(doc(db, 'founders', user.uid), {
         name: profileName.trim(),
-        username: profileUsername.trim().toLowerCase().replace(/\s+/g, ''),
+        username: profileUsername.trim().toLowerCase().replace(/\s+/g, '').replace(/@/g, ''),
         birthDay: profileBirthDay,
         birthMonth: profileBirthMonth,
         birthYear: profileBirthYear,
@@ -2560,7 +2560,7 @@ export default function App() {
                     <div className="w-9 h-9 lg:w-10 lg:h-10 bg-stone-100 rounded-md flex items-center justify-center mb-3 lg:mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
                       <MessageSquare size={18} />
                     </div>
-                    <h3 className="text-base font-sans mb-1">Comunicação</h3>
+                    <h3 className="text-base font-sans mb-1">Assets dos Founders</h3>
                     <p className="text-stone-400 text-xs hidden sm:block">Canais oficiais de suporte e interação entre membros.</p>
                   </div>
                 </div>
@@ -2648,7 +2648,7 @@ export default function App() {
               {activeGeneralCategory === 'founders' ? (
                 allFounders.length > 0 ? (
                   <div className="space-y-3">
-                    {allFounders.map(f => (
+                    {[...allFounders].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR')).map(f => (
                       <div key={f.id} className="flex items-center gap-4 p-4 bg-stone-50 rounded-lg border border-stone-100 hover:border-stone-300 transition-all">
                         <div className="w-11 h-11 bg-stone-200 rounded-full flex items-center justify-center shrink-0 overflow-hidden">
                           {f.photoURL ? (
@@ -3118,7 +3118,7 @@ export default function App() {
                   <input
                     type="text"
                     value={profileUsername}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfileUsername(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfileUsername(e.target.value.replace(/@/g, ''))}
                     className="flex-1 bg-transparent text-sm text-stone-900 focus:outline-none"
                     placeholder="seu.username"
                   />

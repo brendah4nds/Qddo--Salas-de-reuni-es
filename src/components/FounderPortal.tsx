@@ -418,7 +418,7 @@ export function FounderPortal({
                           </div>
                           <div>
                             <span className="text-overline uppercase tracking-widest font-bold text-stone-400 block mb-1">Username</span>
-                            <p className="text-stone-600">@{selectedCompanyFounder.username}</p>
+                            <p className="text-stone-600">@{selectedCompanyFounder.username?.replace(/@/g, '')}</p>
                           </div>
                           {selectedCompanyFounder.instagram && (
                             <div>
