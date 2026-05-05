@@ -111,6 +111,7 @@ export default function App() {
   const [showAddRegra, setShowAddRegra] = useState(false);
   const [newRegraTitle, setNewRegraTitle] = useState('');
   const [newRegraContent, setNewRegraContent] = useState('');
+  const [expandedRuleIds, setExpandedRuleIds] = useState<Set<string>>(new Set());
 
   const [rooms, setRooms] = useState<Room[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -2129,17 +2130,35 @@ export default function App() {
                                   </div>
                                 )}
                               </div>
-                              <ul className="space-y-1.5">
-                                {(item.content || '').split('\n').filter(line => line.trim()).slice(0, 3).map((line, i) => (
-                                  <li key={i} className="flex items-start gap-2 text-stone-600 text-sm leading-snug">
-                                    <span className="mt-0.5 text-primary/40 shrink-0">•</span>
-                                    <span>{line.trim().replace(/^[•\-*]\s*/, '')}</span>
-                                  </li>
-                                ))}
-                                {(item.content || '').split('\n').filter(line => line.trim()).length > 3 && (
-                                  <li className="text-xs text-stone-400 pl-4">+ {(item.content || '').split('\n').filter(line => line.trim()).length - 3} mais</li>
-                                )}
-                              </ul>
+                              {(() => {
+                                const lines = (item.content || '').split('\n').filter(line => line.trim());
+                                const isExpanded = expandedRuleIds.has(item.id);
+                                const visibleLines = isExpanded ? lines : lines.slice(0, 3);
+                                return (
+                                  <>
+                                    <ul className="space-y-1.5">
+                                      {visibleLines.map((line, i) => (
+                                        <li key={i} className="flex items-start gap-2 text-stone-600 text-sm leading-snug">
+                                          <span className="mt-0.5 text-primary/40 shrink-0">•</span>
+                                          <span>{line.trim().replace(/^[•\-*]\s*/, '')}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                    {lines.length > 3 && (
+                                      <button
+                                        onClick={() => setExpandedRuleIds(prev => {
+                                          const next = new Set(prev);
+                                          isExpanded ? next.delete(item.id) : next.add(item.id);
+                                          return next;
+                                        })}
+                                        className="mt-2 text-xs font-bold text-primary hover:text-primary/70 transition-colors flex items-center gap-1"
+                                      >
+                                        {isExpanded ? 'Ver menos' : 'Ver mais'}
+                                      </button>
+                                    )}
+                                  </>
+                                );
+                              })()}
                             </>
                           )}
                         </div>
