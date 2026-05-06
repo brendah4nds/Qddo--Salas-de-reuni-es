@@ -2633,7 +2633,13 @@ export default function App() {
                    <MessageSquare size={24} />}
                 </div>
                 <div>
-                  <h3 className="text-h2 font-sans text-stone-900 capitalize">{activeGeneralCategory}</h3>
+                  <h3 className="text-h2 font-sans text-stone-900 capitalize">{{
+                    founders: 'Founders',
+                    regras: 'Regras',
+                    aviso: 'Avisos',
+                    evento: 'Eventos',
+                    comunicacao: 'Materiais de Apoio',
+                  }[activeGeneralCategory] ?? activeGeneralCategory}</h3>
                   <p className="text-stone-400 text-xs uppercase tracking-widest font-bold">Portal Founder</p>
                 </div>
               </div>
