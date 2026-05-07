@@ -266,23 +266,23 @@ export default function App() {
   const [pontuacaoColWidths, setPontuacaoColWidths] = useState([400, 150]);
   const pontuacaoResizingRef = useRef<{ colIdx: number; startX: number; startWidth: number } | null>(null);
   const [pontuacaoRows, setPontuacaoRows] = useState<string[][]>([
-    ['Check-in diário', '1'],
-    ['Evento interno QDDO', '2'],
-    ['Streak 5 dias consecutivos', '3 (bônus)'],
-    ['Resolução de desafio aberto de outro founder', '5'],
-    ['Indicação founder com fit para o hub', '5'],
-    ['Aprovação de founder indicado por você', '10'],
-    ['Mentoria espontânea (mín. 30 min)', '5'],
-    ['Contribuição técnica ao app/site/infra QDDO', '8'],
-    ['Realização do Desafio Mensal', '10'],
-    ['Avançar estágio', '25'],
-    ['Crescimento de faturamento MoM', '5'],
-    ['Completar desafio de Mantenedor', '15'],
-    ['Participar de hackathon corporativo', '10'],
-    ['Vencer hackathon', '30 (bônus)'],
-    ['Relatório mensal para mantenedor de sala', '8'],
-    ['Convidado no podcast QDDO', '8'],
-    ['Pitch no Demo Day', '10'],
+    ['Check-in diário', '10'],
+    ['Evento interno QDDO', '20'],
+    ['Streak 5 dias consecutivos', '30 (bônus)'],
+    ['Resolução de desafio aberto de outro founder', '50'],
+    ['Indicação founder com fit para o hub', '50'],
+    ['Aprovação de founder indicado por você', '100'],
+    ['Mentoria espontânea (mín. 30 min)', '50'],
+    ['Contribuição técnica ao app/site/infra QDDO', '80'],
+    ['Realização do Desafio Mensal', '100'],
+    ['Avançar estágio', '250'],
+    ['Crescimento de faturamento MoM', '50'],
+    ['Completar desafio de Mantenedor', '150'],
+    ['Participar de hackathon corporativo', '100'],
+    ['Vencer hackathon', '300 (bônus)'],
+    ['Relatório mensal para mantenedor de sala', '80'],
+    ['Convidado no podcast QDDO', '80'],
+    ['Pitch no Demo Day', '100'],
   ]);
 
   const [indicarNome, setIndicarNome] = useState('');
@@ -1556,15 +1556,25 @@ export default function App() {
 
                           {/* Ranking Geral dinâmico */}
                           {expandedQcoinCard === 'ranking' && (() => {
-                            const allTimeScoresMap: Record<string, number> = {};
-                            allCheckins.forEach((c: any) => {
-                              allTimeScoresMap[c.userId] = (allTimeScoresMap[c.userId] || 0) + 10;
+                            const now = new Date();
+                            const monthStart = startOfMonth(now);
+                            const monthEnd = endOfMonth(now);
+                            const monthLabel = format(now, 'MMMM yyyy', { locale: ptBR });
+
+                            const monthCheckins = allCheckins.filter((c: any) => {
+                              const d = c.checkinTime?.toDate ? c.checkinTime.toDate() : (c.checkinTime?.seconds ? new Date(c.checkinTime.seconds * 1000) : new Date(c.checkinTime));
+                              return isWithinInterval(d, { start: monthStart, end: monthEnd });
+                            });
+
+                            const scoresMap: Record<string, number> = {};
+                            monthCheckins.forEach((c: any) => {
+                              scoresMap[c.userId] = (scoresMap[c.userId] || 0) + 10;
                             });
 
                             const fullRanking = allFounders
                               .map((founder: any) => ({
                                 userId: founder.id,
-                                score: allTimeScoresMap[founder.id] || 0,
+                                score: scoresMap[founder.id] || 0,
                                 name: founder.name || 'Founder',
                                 username: founder.username || founder.id?.slice(0, 6),
                                 photoURL: founder.photoURL || null,
@@ -1577,8 +1587,8 @@ export default function App() {
                                 <div className="px-6 py-5 border-b border-stone-100 flex items-center gap-3">
                                   <Crown className="text-primary" size={18} />
                                   <h4 className="text-base font-sans text-stone-900">Ranking Geral</h4>
-                                  <span className="ml-auto text-overline font-bold uppercase tracking-widest text-stone-400">
-                                    {fullRanking.length} founder{fullRanking.length !== 1 ? 's' : ''}
+                                  <span className="ml-auto text-overline font-bold uppercase tracking-widest text-stone-400 capitalize">
+                                    {monthLabel}
                                   </span>
                                 </div>
 
